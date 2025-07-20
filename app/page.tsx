@@ -134,9 +134,9 @@ export default function LandingClient() {
             className="space-y-8"
           >
             <motion.div variants={itemVariants} className="space-y-4">
-                <h1 className="text-4xl lg:text-6xl font-bold text-white leading-tight mt-16 md:mt-4">
+              <h1 className="text-4xl lg:text-6xl font-bold text-white leading-tight mt-16 md:mt-4">
                 Domine seu tempo.
-                </h1>
+              </h1>
               <h2 className="text-3xl lg:text-5xl font-bold text-blue-400 leading-tight">
                 Potencialize seu aprendizado
               </h2>
