@@ -7,7 +7,7 @@ import clsx from 'clsx';
 
 const navItems = [
   { label: 'Home', icon: IoHome, href: '/home' },
-  { label: 'Buscar', icon: Search, href: '/search' },
+  { label: 'Projetos', icon: Search, href: '/projetos' },
   { label: 'Novo', icon: PlusCircle, href: '/new' },
   { label: 'Perfil', icon: User, href: '/profile' },
 ];
@@ -17,7 +17,7 @@ export function MobileBottomNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-gray-900 border-t border-white/10 flex justify-around items-center h-16 shadow-inner backdrop-blur-md">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-[#0f1221] border-t border-white/10 flex justify-around items-center h-16 shadow-inner backdrop-blur-md">
       {navItems.map(({ label, icon: Icon, href }) => {
         const isActive = pathname === href;
 
