@@ -24,11 +24,13 @@ import { useEffect } from 'react';
 
 export function useFetchMe() {
   const setUser = useAuthStore((state) => state.setUser);
+  const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
+  const url = `${baseUrl}/api/v1/auth/me`;
 
   const query = useQuery<AuthUser>({
     queryKey: ['me'],
     queryFn: async () => {
-      const response = await axios.get('http://localhost:8080/api/v1/auth/me', {
+      const response = await axios.get(url, {
         withCredentials: true,
       });
       return response.data;
