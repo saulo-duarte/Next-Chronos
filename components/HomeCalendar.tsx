@@ -1,156 +1,133 @@
 'use client';
 
-import { useState } from 'react';
-import { addDays, setHours, setMinutes, subDays } from 'date-fns';
+import { useState, useMemo } from 'react';
+import { addDays, parseISO } from 'date-fns';
+import { useParams } from 'next/navigation';
 
 import { EventCalendar } from './event-calendar';
 import { CalendarEvent } from './types';
+import { TaskType, useTasks } from '@/hooks/data/useTasksQuery';
+import { Task } from '@/hooks/data/useTasksQuery';
 
-// Sample events data with hardcoded times
-const sampleEvents: CalendarEvent[] = [
-  {
-    id: '1',
-    title: 'Annual Planning',
-    description: 'Strategic planning for next year',
-    start: subDays(new Date(), 24), // 24 days before today
-    end: subDays(new Date(), 23), // 23 days before today
-    allDay: true,
-    color: 'sky',
-    location: 'Main Conference Hall',
-  },
-  {
-    id: '2',
-    title: 'Project Deadline',
-    description: 'Submit final deliverables',
-    start: setMinutes(setHours(subDays(new Date(), 9), 13), 0), // 1:00 PM, 9 days before
-    end: setMinutes(setHours(subDays(new Date(), 9), 15), 30), // 3:30 PM, 9 days before
-    color: 'amber',
-    location: 'Office',
-  },
-  {
-    id: '3',
-    title: 'Quarterly Budget Review',
-    description: 'Strategic planning for next year',
-    start: subDays(new Date(), 13), // 13 days before today
-    end: subDays(new Date(), 13), // 13 days before today
-    allDay: true,
-    color: 'orange',
-    location: 'Main Conference Hall',
-  },
-  {
-    id: '4',
-    title: 'Team Meeting',
-    description: 'Weekly team sync',
-    start: setMinutes(setHours(new Date(), 10), 0), // 10:00 AM today
-    end: setMinutes(setHours(new Date(), 11), 0), // 11:00 AM today
-    color: 'sky',
-    location: 'Conference Room A',
-  },
-  {
-    id: '5',
-    title: 'Lunch with Client',
-    description: 'Discuss new project requirements',
-    start: setMinutes(setHours(addDays(new Date(), 1), 12), 0), // 12:00 PM, 1 day from now
-    end: setMinutes(setHours(addDays(new Date(), 1), 13), 15), // 1:15 PM, 1 day from now
-    color: 'emerald',
-    location: 'Downtown Cafe',
-  },
-  {
-    id: '6',
-    title: 'Product Launch',
-    description: 'New product release',
-    start: addDays(new Date(), 3), // 3 days from now
-    end: addDays(new Date(), 6), // 6 days from now
-    allDay: true,
-    color: 'violet',
-  },
-  {
-    id: '7',
-    title: 'Sales Conference',
-    description: 'Discuss about new clients',
-    start: setMinutes(setHours(addDays(new Date(), 4), 14), 30), // 2:30 PM, 4 days from now
-    end: setMinutes(setHours(addDays(new Date(), 5), 14), 45), // 2:45 PM, 5 days from now
-    color: 'rose',
-    location: 'Downtown Cafe',
-  },
-  {
-    id: '8',
-    title: 'Team Meeting',
-    description: 'Weekly team sync',
-    start: setMinutes(setHours(addDays(new Date(), 5), 9), 0), // 9:00 AM, 5 days from now
-    end: setMinutes(setHours(addDays(new Date(), 5), 10), 30), // 10:30 AM, 5 days from now
-    color: 'orange',
-    location: 'Conference Room A',
-  },
-  {
-    id: '9',
-    title: 'Review contracts',
-    description: 'Weekly team sync',
-    start: setMinutes(setHours(addDays(new Date(), 5), 14), 0), // 2:00 PM, 5 days from now
-    end: setMinutes(setHours(addDays(new Date(), 5), 15), 30), // 3:30 PM, 5 days from now
-    color: 'sky',
-    location: 'Conference Room A',
-  },
-  {
-    id: '10',
-    title: 'Team Meeting',
-    description: 'Weekly team sync',
-    start: setMinutes(setHours(addDays(new Date(), 5), 9), 45), // 9:45 AM, 5 days from now
-    end: setMinutes(setHours(addDays(new Date(), 5), 11), 0), // 11:00 AM, 5 days from now
-    color: 'amber',
-    location: 'Conference Room A',
-  },
-  {
-    id: '11',
-    title: 'Marketing Strategy Session',
-    description: 'Quarterly marketing planning',
-    start: setMinutes(setHours(addDays(new Date(), 9), 10), 0), // 10:00 AM, 9 days from now
-    end: setMinutes(setHours(addDays(new Date(), 9), 15), 30), // 3:30 PM, 9 days from now
-    color: 'emerald',
-    location: 'Marketing Department',
-  },
-  {
-    id: '12',
-    title: 'Annual Shareholders Meeting',
-    description: 'Presentation of yearly results',
-    start: addDays(new Date(), 17), // 17 days from now
-    end: addDays(new Date(), 17), // 17 days from now
-    allDay: true,
-    color: 'sky',
-    location: 'Grand Conference Center',
-  },
-  {
-    id: '13',
-    title: 'Product Development Workshop',
-    description: 'Brainstorming for new features',
-    start: setMinutes(setHours(addDays(new Date(), 26), 9), 0), // 9:00 AM, 26 days from now
-    end: setMinutes(setHours(addDays(new Date(), 27), 17), 0), // 5:00 PM, 27 days from now
-    color: 'rose',
-    location: 'Innovation Lab',
-  },
-];
+const getTaskTypeColor = (taskType: TaskType): CalendarEvent['color'] => {
+  switch (taskType) {
+    case 'EVENT':
+      return 'mint';
+    case 'PROJECT':
+      return 'skyblue';
+    case 'STUDY':
+      return 'lavender';
+  }
+};
 
-export default function HomeCalendar() {
-  const [events, setEvents] = useState<CalendarEvent[]>(sampleEvents);
+const taskToCalendarEvent = (task: Task): CalendarEvent => {
+  let startDate: Date;
+  if (task.dueDate) {
+    startDate = parseISO(task.dueDate);
+  } else if (task.created_at) {
+    startDate = parseISO(task.created_at);
+  } else {
+    startDate = new Date();
+  }
+
+  const isAllDay = task.dueDate ? !task.dueDate.includes('T') : true;
+
+  const start = startDate;
+  const end = isAllDay ? startDate : addDays(start, 0);
+
+  return {
+    id: task.id,
+    title: task.name,
+    description: task.description || '',
+    start: task.startDate ? parseISO(task.startDate) : start,
+    end: task.dueDate ? parseISO(task.dueDate) : end,
+    allDay: isAllDay,
+    color: getTaskTypeColor(task.type),
+    location: task.projectId ? `Projeto: ${task.projectId}` : undefined,
+
+    type: task.type,
+    status: task.status,
+    priority: task.priority,
+  };
+};
+
+export default function TaskCalendar() {
+  const params = useParams();
+  const projectId = params?.id as string;
+  const { data: tasks, isLoading, isError, error, refetch } = useTasks();
+
+  // Converte tasks em eventos do calendário
+  const calendarEvents = useMemo(() => {
+    if (!tasks) return [];
+    return tasks.map(taskToCalendarEvent);
+  }, [tasks]);
+
+  const [events, setEvents] = useState<CalendarEvent[]>([]);
+
+  // Atualiza os eventos quando as tasks são carregadas
+  useMemo(() => {
+    setEvents(calendarEvents);
+  }, [calendarEvents]);
 
   const handleEventAdd = (event: CalendarEvent) => {
+    // Aqui você pode implementar a criação de uma nova task
+    // Por enquanto, apenas adiciona ao estado local
     setEvents([...events, event]);
+    console.log('Nova task a ser criada:', event);
   };
 
   const handleEventUpdate = (updatedEvent: CalendarEvent) => {
+    // Aqui você pode implementar a atualização de uma task existente
     setEvents(events.map((event) => (event.id === updatedEvent.id ? updatedEvent : event)));
+    console.log('Task a ser atualizada:', updatedEvent);
   };
 
   const handleEventDelete = (eventId: string) => {
+    // Aqui você pode implementar a exclusão de uma task
     setEvents(events.filter((event) => event.id !== eventId));
+    console.log('Task a ser excluída:', eventId);
   };
 
+  if (isLoading) {
+    return (
+      <div className="max-w-7xl mx-auto mt-10 p-4">
+        <h1 className="text-2xl font-bold mb-4">Calendário de Tarefas</h1>
+        <p>Carregando tarefas...</p>
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="max-w-7xl mx-auto mt-10 p-4">
+        <h1 className="text-2xl font-bold mb-4">Calendário de Tarefas</h1>
+        <p className="text-red-500">Erro ao carregar tarefas: {String(error)}</p>
+        <button
+          onClick={() => refetch()}
+          className="mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+        >
+          Tentar novamente
+        </button>
+      </div>
+    );
+  }
+
   return (
-    <EventCalendar
-      events={events}
-      onEventAdd={handleEventAdd}
-      onEventUpdate={handleEventUpdate}
-      onEventDelete={handleEventDelete}
-    />
+    <div className="max-w-7xl mx-auto mt-10 p-4">
+      <div className="mb-4">
+        <h1 className="text-2xl font-bold mb-2">Calendário de Tarefas</h1>
+        <p className="text-gray-600">
+          {tasks?.length || 0} tarefas carregadas
+          {projectId && ` • Projeto: ${projectId}`}
+        </p>
+      </div>
+
+      <EventCalendar
+        events={events}
+        onEventAdd={handleEventAdd}
+        onEventUpdate={handleEventUpdate}
+        onEventDelete={handleEventDelete}
+      />
+    </div>
   );
 }

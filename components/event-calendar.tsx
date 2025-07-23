@@ -1,7 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
-import { RiCalendarCheckLine } from '@remixicon/react';
+import { useMemo, useState } from 'react';
 import {
   addDays,
   addMonths,
@@ -27,13 +26,13 @@ import {
 import { CalendarEvent, CalendarView } from './types';
 import { AgendaDaysToShow, EventGap, EventHeight, WeekCellsHeight } from './constants';
 export { AgendaDaysToShow } from './constants';
-import { addHoursToDate } from './utils';
 import { CalendarDndProvider } from './calendar-dnd-context';
 import { MonthView } from './month-view';
 import { WeekView } from './week-view';
 import { DayView } from './day-view';
 import { AgendaView } from './agenda-view';
 import { EventDialog } from './event-dialog';
+import { useTaskStore } from '@/stores/useTaskStore';
 
 export interface EventCalendarProps {
   events?: CalendarEvent[];
@@ -46,53 +45,13 @@ export interface EventCalendarProps {
 
 export function EventCalendar({
   events = [],
-  onEventAdd,
   onEventUpdate,
-  onEventDelete,
   className,
   initialView = 'month',
 }: EventCalendarProps) {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [view, setView] = useState<CalendarView>(initialView);
-  const [isEventDialogOpen, setIsEventDialogOpen] = useState(false);
-  const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null);
-
-  // Add keyboard shortcuts for view switching
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      // Skip if user is typing in an input, textarea or contentEditable element
-      // or if the event dialog is open
-      if (
-        isEventDialogOpen ||
-        e.target instanceof HTMLInputElement ||
-        e.target instanceof HTMLTextAreaElement ||
-        (e.target instanceof HTMLElement && e.target.isContentEditable)
-      ) {
-        return;
-      }
-
-      switch (e.key.toLowerCase()) {
-        case 'm':
-          setView('month');
-          break;
-        case 'w':
-          setView('week');
-          break;
-        case 'd':
-          setView('day');
-          break;
-        case 'a':
-          setView('agenda');
-          break;
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [isEventDialogOpen]);
+  const { setSelectedTask, setModalOpen } = useTaskStore();
 
   const handlePrevious = () => {
     if (view === 'month') {
@@ -102,7 +61,6 @@ export function EventCalendar({
     } else if (view === 'day') {
       setCurrentDate(addDays(currentDate, -1));
     } else if (view === 'agenda') {
-      // For agenda view, go back 30 days (a full month)
       setCurrentDate(addDays(currentDate, -AgendaDaysToShow));
     }
   };
@@ -120,81 +78,30 @@ export function EventCalendar({
     }
   };
 
-  const handleToday = () => {
-    setCurrentDate(new Date());
-  };
-
   const handleEventSelect = (event: CalendarEvent) => {
-    console.log('Event selected:', event); // Debug log
-    setSelectedEvent(event);
-    setIsEventDialogOpen(true);
+    console.log('Event selected:', event);
+    setSelectedTask(event.id);
+    setModalOpen(true);
   };
 
   const handleEventCreate = (startTime: Date) => {
-    console.log('Creating new event at:', startTime); // Debug log
+    console.log('Creating new event at:', startTime);
 
-    // Snap to 15-minute intervals
+    // Arredonda para o múltiplo de 15 mais próximo
     const minutes = startTime.getMinutes();
     const remainder = minutes % 15;
     if (remainder !== 0) {
       if (remainder < 7.5) {
-        // Round down to nearest 15 min
         startTime.setMinutes(minutes - remainder);
       } else {
-        // Round up to nearest 15 min
         startTime.setMinutes(minutes + (15 - remainder));
       }
       startTime.setSeconds(0);
       startTime.setMilliseconds(0);
     }
 
-    const newEvent: CalendarEvent = {
-      id: '',
-      title: '',
-      start: startTime,
-      end: addHoursToDate(startTime, 1),
-      allDay: false,
-    };
-    setSelectedEvent(newEvent);
-    setIsEventDialogOpen(true);
-  };
-
-  const handleEventSave = (event: CalendarEvent) => {
-    if (event.id) {
-      onEventUpdate?.(event);
-      // Show toast notification when an event is updated
-      toast(`Event "${event.title}" updated`, {
-        description: format(new Date(event.start), 'MMM d, yyyy'),
-        position: 'bottom-left',
-      });
-    } else {
-      onEventAdd?.({
-        ...event,
-        id: Math.random().toString(36).substring(2, 11),
-      });
-      // Show toast notification when an event is added
-      toast(`Event "${event.title}" added`, {
-        description: format(new Date(event.start), 'MMM d, yyyy'),
-        position: 'bottom-left',
-      });
-    }
-    setIsEventDialogOpen(false);
-    setSelectedEvent(null);
-  };
-
-  const handleEventDelete = (eventId: string) => {
-    const deletedEvent = events.find((e) => e.id === eventId);
-    onEventDelete?.(eventId);
-    setIsEventDialogOpen(false);
-    setSelectedEvent(null);
-
-    // Show toast notification when an event is deleted
-    if (deletedEvent) {
-      toast(`Event "${deletedEvent.title}" deleted`, {
-        description: format(new Date(deletedEvent.start), 'MMM d, yyyy'),
-        position: 'bottom-left',
-      });
-    }
+    setSelectedTask(null);
+    setModalOpen(true);
   };
 
   const handleEventUpdate = (updatedEvent: CalendarEvent) => {
@@ -257,16 +164,8 @@ export function EventCalendar({
       }
     >
       <CalendarDndProvider onEventUpdate={handleEventUpdate}>
-        <div className={cn('flex items-center justify-between p-2 sm:p-4', className)}>
-          <div className="flex items-center gap-1 sm:gap-4">
-            <Button
-              variant="outline"
-              className="max-[479px]:aspect-square max-[479px]:p-0!"
-              onClick={handleToday}
-            >
-              <RiCalendarCheckLine className="min-[480px]:hidden" size={16} aria-hidden="true" />
-              <span className="max-[479px]:sr-only">Today</span>
-            </Button>
+        <div className={cn('flex items-center justify-between p-2 sm:p-0', className)}>
+          <div className="flex items-center gap-1 sm:gap-1 max-[479px]:hidden">
             <div className="flex items-center sm:gap-2">
               <Button variant="ghost" size="icon" onClick={handlePrevious} aria-label="Previous">
                 <ChevronLeftIcon size={16} aria-hidden="true" />
@@ -275,19 +174,17 @@ export function EventCalendar({
                 <ChevronRightIcon size={16} aria-hidden="true" />
               </Button>
             </div>
-            <h2 className="text-sm font-semibold sm:text-lg md:text-xl">{viewTitle}</h2>
+            <h2 className="text-sm font-semibold sm:text-[6px] md:text-xl">{viewTitle}</h2>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-4">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" className="gap-1.5 max-[479px]:h-8">
-                  <span>
-                    <span className="min-[480px]:hidden" aria-hidden="true">
-                      {view.charAt(0).toUpperCase()}
-                    </span>
-                    <span className="max-[479px]:sr-only">
-                      {view.charAt(0).toUpperCase() + view.slice(1)}
-                    </span>
+                <Button
+                  variant="ghost"
+                  className={cn('gap-1 max-[479px]:h-8', 'min-[480px]:w-auto max-[479px]:w-24')}
+                >
+                  <span className="md:text-md" aria-hidden="true">
+                    {view.charAt(0).toUpperCase() + view.slice(1)}
                   </span>
                   <ChevronDownIcon className="-me-1 opacity-60" size={16} aria-hidden="true" />
                 </Button>
@@ -307,20 +204,20 @@ export function EventCalendar({
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-            <Button
-              className="max-[479px]:aspect-square max-[479px]:p-0!"
-              size="sm"
-              onClick={() => {
-                setSelectedEvent(null); // Ensure we're creating a new event
-                setIsEventDialogOpen(true);
-              }}
-            >
-              <PlusIcon className="opacity-60 sm:-ms-1" size={16} aria-hidden="true" />
-              <span className="max-sm:sr-only">New event</span>
-            </Button>
+            <div className="max-[479px]:hidden">
+              <Button
+                size="sm"
+                onClick={() => {
+                  setSelectedTask(null);
+                  setModalOpen(true);
+                }}
+              >
+                <PlusIcon className="opacity-60 sm:-ms-1" size={16} aria-hidden="true" />
+                <span className="max-sm:sr-only">Novo Evento</span>
+              </Button>
+            </div>
           </div>
         </div>
-
         <div className="flex flex-1 flex-col">
           {view === 'month' && (
             <MonthView
@@ -355,17 +252,21 @@ export function EventCalendar({
           )}
         </div>
 
-        <EventDialog
-          event={selectedEvent}
-          isOpen={isEventDialogOpen}
-          onClose={() => {
-            setIsEventDialogOpen(false);
-            setSelectedEvent(null);
-          }}
-          onSave={handleEventSave}
-          onDelete={handleEventDelete}
-        />
+        <EventDialog />
       </CalendarDndProvider>
+      <div className="min-[480px]:hidden">
+        <button
+          type="button"
+          className="fixed bottom-24 right-6 z-50 flex h-12 w-12 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg transition hover:bg-primary/90"
+          onClick={() => {
+            setSelectedTask(null);
+            setModalOpen(true);
+          }}
+          aria-label="New event"
+        >
+          <PlusIcon size={24} aria-hidden="true" />
+        </button>
+      </div>
     </div>
   );
 }

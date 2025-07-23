@@ -1,13 +1,21 @@
 'use client';
 
-import { useMemo } from 'react';
+import { JSX, useMemo } from 'react';
 import type { DraggableAttributes } from '@dnd-kit/core';
 import type { SyntheticListenerMap } from '@dnd-kit/core/dist/hooks/utilities';
 import { differenceInMinutes, format, getMinutes, isPast } from 'date-fns';
-
+import { BsCalendar2WeekFill } from 'react-icons/bs';
 import { cn } from '@/lib/utils';
 import { CalendarEvent } from './types';
 import { getBorderRadiusClasses, getEventColorClasses } from './utils';
+import { FaBookmark } from 'react-icons/fa6';
+import { FaBriefcase } from 'react-icons/fa6';
+import { TaskPriority, TaskStatus } from '@/hooks/data/useTasksQuery';
+import { RiLoader2Line, RiTimeFill } from '@remixicon/react';
+import { FaCheckCircle } from 'react-icons/fa';
+import { Circle, Minus } from 'lucide-react';
+import { TiWarning } from 'react-icons/ti';
+import { HiFlag } from 'react-icons/hi';
 
 // Using date-fns format with custom formatting:
 // 'h' - hours (1-12)
@@ -215,11 +223,87 @@ export function EventItem({
     );
   }
 
-  // Agenda view - kept separate since it's significantly different
+  const getTaskTypeIcon = (type?: string) => {
+    const iconClass = 'h-full w-6';
+    switch (type) {
+      case 'PROJECT':
+        return <FaBriefcase className={iconClass} />;
+      case 'STUDY':
+        return <FaBookmark className={iconClass} />;
+      case 'EVENT':
+        return <BsCalendar2WeekFill className={iconClass} />;
+      default:
+        return null;
+    }
+  };
+
+  function getStatusBadge(status?: TaskStatus): { icon: JSX.Element; className: string } {
+    switch (status) {
+      case 'TODO':
+        return {
+          icon: <RiTimeFill className="w-3 h-3 sm:w-3 sm:h-3" />,
+          className:
+            'bg-gray-200 text-gray-800 dark:bg-gray-900 dark:text-gray-300 text-[9px] sm:text-[10px] px-1 py-0.5 sm:px-1.5',
+        };
+      case 'IN_PROGRESS':
+        return {
+          icon: <RiLoader2Line className="w-3 h-3 animate-spin-slow sm:w-3 sm:h-3" />,
+          className:
+            'bg-blue-200 text-blue-800 dark:bg-blue-900 dark:text-blue-300 text-[9px] sm:text-[10px] px-1 py-0.5 sm:px-1.5',
+        };
+      case 'DONE':
+        return {
+          icon: <FaCheckCircle className="w-3 h-3 sm:w-3 sm:h-3" />,
+          className:
+            'bg-emerald-200 text-green-800 dark:bg-green-900 dark:text-green-300 text-[9px] sm:text-[10px] px-1 py-0.5 sm:px-1.5',
+        };
+      default:
+        return {
+          icon: <Circle className="w-3 h-3 sm:w-3 sm:h-3" />,
+          className:
+            'bg-muted text-muted-foreground text-[9px] sm:text-[10px] px-1 py-0.5 sm:px-1.5',
+        };
+    }
+  }
+
+  function getPriorityBadge(priority?: TaskPriority): { icon: JSX.Element; className: string } {
+    switch (priority) {
+      case 'LOW':
+        return {
+          icon: <HiFlag className="w-3 h-3" />,
+          className:
+            'bg-emerald-200 text-green-800 dark:bg-green-900 dark:text-green-300 text-[9px] sm:text-[10px] px-1 py-0.5 sm:px-1.5',
+        };
+      case 'MEDIUM':
+        return {
+          icon: <HiFlag className="w-3 h-3" />,
+          className:
+            'bg-yellow-200 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200 text-[9px] sm:text-[10px] px-1 py-0.5 sm:px-1.5',
+        };
+      case 'HIGH':
+        return {
+          icon: <TiWarning className="w-3 h-3" />,
+          className:
+            'bg-red-200 text-red-800 dark:bg-red-900 dark:text-red-300 text-[9px] sm:text-[10px] px-1 py-0.5 sm:px-1.5',
+        };
+      default:
+        return {
+          icon: <Minus className="w-3 h-3" />,
+          className: 'bg-muted text-muted-foreground',
+        };
+    }
+  }
+
+  function formatLabel(text?: string) {
+    if (!text) return '';
+    const lower = text.toLowerCase().replace(/_/g, ' ');
+    return lower.charAt(0).toUpperCase() + lower.slice(1);
+  }
+
   return (
     <button
       className={cn(
-        'focus-visible:border-ring focus-visible:ring-ring/50 flex w-full flex-col gap-1 rounded p-2 text-left transition outline-none focus-visible:ring-[3px] data-past-event:line-through data-past-event:opacity-90',
+        'relative flex w-full flex-row items-stretch gap-2 rounded-md px-4 py-2 text-left transition outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] data-past-event:line-through data-past-event:opacity-90',
         getEventColorClasses(eventColor),
         className
       )}
@@ -230,24 +314,58 @@ export function EventItem({
       {...dndListeners}
       {...dndAttributes}
     >
-      <div className="text-sm font-medium">{event.title}</div>
-      <div className="text-xs opacity-70">
-        {event.allDay ? (
-          <span>All day</span>
-        ) : (
-          <span className="uppercase">
-            {formatTimeWithOptionalMinutes(displayStart)} -{' '}
-            {formatTimeWithOptionalMinutes(displayEnd)}
-          </span>
-        )}
-        {event.location && (
-          <>
-            <span className="px-1 opacity-35"> · </span>
-            <span>{event.location}</span>
-          </>
-        )}
+      <div className="flex items-center">{getTaskTypeIcon(event.type)}</div>
+
+      <div className="flex flex-col flex-1 gap-1">
+        <div className="text-sm font-medium">{event.title}</div>
+
+        <div className="text-xs opacity-70">
+          {event.allDay ? (
+            <span>All day</span>
+          ) : (
+            <span className="uppercase">
+              {formatTimeWithOptionalMinutes(displayStart)} -{' '}
+              {formatTimeWithOptionalMinutes(displayEnd)}
+            </span>
+          )}
+        </div>
       </div>
-      {event.description && <div className="my-1 text-xs opacity-90">{event.description}</div>}
+
+      {(event.status || event.priority) && (
+        <div className="absolute bottom-1 right-1 flex items-center gap-1">
+          {event.status &&
+            (() => {
+              const { icon, className } = getStatusBadge(event.status);
+              return (
+                <span
+                  className={cn(
+                    'flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] font-semibold',
+                    className
+                  )}
+                >
+                  {icon}
+                  {formatLabel(event.status)}
+                </span>
+              );
+            })()}
+
+          {event.priority &&
+            (() => {
+              const { icon, className } = getPriorityBadge(event.priority);
+              return (
+                <span
+                  className={cn(
+                    'flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] font-semibold',
+                    className
+                  )}
+                >
+                  {icon}
+                  {formatLabel(event.priority)}
+                </span>
+              );
+            })()}
+        </div>
+      )}
     </button>
   );
 }
