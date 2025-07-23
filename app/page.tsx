@@ -94,7 +94,7 @@ export default function LandingClient() {
       >
         <div className="flex items-center space-x-2">
           <div className="w-8 h-8 rounded-full flex items-center justify-center">
-            <Image src={'/Logo Chronos.png'} alt="Chronos Logo" width={48} height={48} />
+            <Image src={'/icons/Logo Chronos.png'} alt="Chronos Logo" width={48} height={48} />
           </div>
           <span className="text-white text-3xl font-bold">Chronos</span>
         </div>
