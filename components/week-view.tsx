@@ -2,12 +2,12 @@
 
 import React, { useMemo } from 'react';
 import {
+  addDays,
   addHours,
   areIntervalsOverlapping,
   differenceInMinutes,
   eachDayOfInterval,
   eachHourOfInterval,
-  endOfWeek,
   format,
   getHours,
   getMinutes,
@@ -17,7 +17,6 @@ import {
   startOfDay,
   startOfWeek,
 } from 'date-fns';
-
 import { EndHour, StartHour, WeekCellsHeight } from '@/components/constants';
 import { cn } from '@/lib/utils';
 import { CalendarEvent } from './types';
@@ -26,9 +25,9 @@ import { useCurrentTimeIndicator } from './use-current-time-indicator';
 import { EventItem } from './event-item';
 import { DraggableEvent } from './draggable-event';
 import { DroppableCell } from './droppable-cell';
+import { useCalendarStore } from '@/stores/useCalendarStore';
 
 interface WeekViewProps {
-  currentDate: Date;
   events: CalendarEvent[];
   onEventSelect: (event: CalendarEvent) => void;
   onEventCreate: (startTime: Date) => void;
@@ -43,22 +42,28 @@ interface PositionedEvent {
   zIndex: number;
 }
 
-export function WeekView({ currentDate, events, onEventSelect, onEventCreate }: WeekViewProps) {
-  const days = useMemo(() => {
-    const weekStart = startOfWeek(currentDate, { weekStartsOn: 0 });
-    const weekEnd = endOfWeek(currentDate, { weekStartsOn: 0 });
-    return eachDayOfInterval({ start: weekStart, end: weekEnd });
-  }, [currentDate]);
+export function WeekView({ events, onEventSelect, onEventCreate }: WeekViewProps) {
+  const { currentWeekStart } = useCalendarStore();
 
-  const weekStart = useMemo(() => startOfWeek(currentDate, { weekStartsOn: 0 }), [currentDate]);
+  const days = useMemo(() => {
+    return eachDayOfInterval({
+      start: currentWeekStart,
+      end: addDays(currentWeekStart, 6),
+    });
+  }, [currentWeekStart]);
+
+  const weekStart = useMemo(
+    () => startOfWeek(currentWeekStart, { weekStartsOn: 0 }),
+    [currentWeekStart]
+  );
 
   const hours = useMemo(() => {
-    const dayStart = startOfDay(currentDate);
+    const dayStart = startOfDay(currentWeekStart);
     return eachHourOfInterval({
       start: addHours(dayStart, StartHour),
       end: addHours(dayStart, EndHour - 1),
     });
-  }, [currentDate]);
+  }, [currentWeekStart]);
 
   // Get all-day events and multi-day events for the week
   const allDayEvents = useMemo(() => {
@@ -196,7 +201,10 @@ export function WeekView({ currentDate, events, onEventSelect, onEventCreate }: 
   };
 
   const showAllDaySection = allDayEvents.length > 0;
-  const { currentTimePosition, currentTimeVisible } = useCurrentTimeIndicator(currentDate, 'week');
+  const { currentTimePosition, currentTimeVisible } = useCurrentTimeIndicator(
+    currentWeekStart,
+    'week'
+  );
 
   return (
     <div data-slot="week-view" className="flex h-full flex-col">
