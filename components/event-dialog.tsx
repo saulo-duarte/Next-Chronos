@@ -5,23 +5,24 @@ import { isBefore } from 'date-fns';
 import { RiDeleteBinLine } from '@remixicon/react';
 
 import { useTaskStore } from '@/stores/useTaskStore';
-import { useCreateTask, useDeleteTask, useTask, useUpdateTask } from '@/hooks/data/useTasksQuery';
+import {
+  TaskPriority,
+  useCreateTask,
+  useDeleteTask,
+  useTask,
+  useUpdateTask,
+} from '@/hooks/data/useTasksQuery';
 
 import { DefaultEndHour, DefaultStartHour, EndHour, StartHour } from '@/components/constants';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from './ui/dialog';
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from './ui/dialog';
 import { Label } from './ui/label';
 import { Input } from './ui/input';
 import { Textarea } from './ui/textarea';
 import { Checkbox } from './ui/checkbox';
 import { Button } from './ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
+import { BsFillFlagFill } from 'react-icons/bs';
+import { TiWarning } from 'react-icons/ti';
 
 export function EventDialog() {
   const { selectedTaskId, isModalOpen, setModalOpen, setSelectedTask } = useTaskStore();
@@ -38,6 +39,7 @@ export function EventDialog() {
   const [endTime, setEndTime] = useState(`${DefaultEndHour}:00`);
   const [allDay, setAllDay] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [priority, setPriority] = useState<TaskPriority>('MEDIUM');
 
   useEffect(() => {
     if (task) {
@@ -45,11 +47,12 @@ export function EventDialog() {
       setDescription(task.description ?? '');
       const start = task.startDate ? new Date(task.startDate) : new Date();
       const end = task.dueDate ? new Date(task.dueDate) : new Date();
+      setPriority(task.priority ?? 'MEDIUM');
       setStartDate(start);
       setEndDate(end);
       setStartTime(formatTimeForInput(start));
       setEndTime(formatTimeForInput(end));
-      setAllDay(false); // Supondo que vem como false (ou use task.allDay se tiver)
+      setAllDay(false);
     } else {
       resetForm();
     }
@@ -146,27 +149,39 @@ export function EventDialog() {
     return options;
   }
 
+  const priorityOptions = [
+    { value: 'LOW', label: 'Baixa', icon: <BsFillFlagFill className="text-green-300 mr-1" /> },
+    { value: 'MEDIUM', label: 'Média', icon: <BsFillFlagFill className="text-yellow-300 mr-1" /> },
+    { value: 'HIGH', label: 'Alta', icon: <TiWarning className="text-red-400 mr-1" /> },
+  ] as const;
+
+  function getPriorityLabel(priority: TaskPriority) {
+    const option = priorityOptions.find((o) => o.value === priority);
+    return option ? (
+      <div className="flex items-center gap-2">
+        {option.icon}
+        <span>{option.label}</span>
+      </div>
+    ) : null;
+  }
+
   return (
     <Dialog open={isModalOpen} onOpenChange={(open) => !open && handleClose()}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>{task?.id ? 'Edit Task' : 'Create Task'}</DialogTitle>
-          <DialogDescription>
-            {task?.id ? 'Update your event details.' : 'Create a new task as calendar event.'}
-          </DialogDescription>
+          <DialogTitle>{task?.id ? 'Edit Task' : 'Adicionar Evento'}</DialogTitle>
         </DialogHeader>
 
         {error && <div className="bg-red-100 text-red-700 rounded px-3 py-2 text-sm">{error}</div>}
 
-        {/* -- Title -- */}
         <div className="grid gap-4 py-4">
           <div>
-            <Label htmlFor="title">Title</Label>
+            <Label htmlFor="title">Título</Label>
             <Input id="title" value={title} onChange={(e) => setTitle(e.target.value)} />
           </div>
 
           <div>
-            <Label htmlFor="description">Description</Label>
+            <Label htmlFor="description">Descrição (Opcional)</Label>
             <Textarea
               id="description"
               value={description}
@@ -175,12 +190,33 @@ export function EventDialog() {
             />
           </div>
 
+          <div>
+            <Label htmlFor="priority">Prioridade</Label>
+            <Select value={priority} onValueChange={(value) => setPriority(value as TaskPriority)}>
+              <SelectTrigger id="priority" className="w-full">
+                <SelectValue placeholder="Selecione prioridade">
+                  {getPriorityLabel(priority)}
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                {priorityOptions.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    <div className="flex items-center gap-2">
+                      {option.icon}
+                      <span>{option.label}</span>
+                    </div>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
           {!allDay && (
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="start-time">Start Time</Label>
+                <Label htmlFor="start-time">Hora de Início</Label>
                 <Select value={startTime} onValueChange={setStartTime}>
-                  <SelectTrigger id="start-time">
+                  <SelectTrigger id="start-time" className="w-full">
                     <SelectValue placeholder="Select time" />
                   </SelectTrigger>
                   <SelectContent>
@@ -193,9 +229,9 @@ export function EventDialog() {
                 </Select>
               </div>
               <div>
-                <Label htmlFor="end-time">End Time</Label>
+                <Label htmlFor="end-time">Hora do Fim</Label>
                 <Select value={endTime} onValueChange={setEndTime}>
-                  <SelectTrigger id="end-time">
+                  <SelectTrigger id="end-time" className="w-full">
                     <SelectValue placeholder="Select time" />
                   </SelectTrigger>
                   <SelectContent>
@@ -220,13 +256,13 @@ export function EventDialog() {
           </div>
         </div>
 
-        <DialogFooter className="flex-row sm:justify-between">
+        <DialogFooter className="flex-row">
           {task?.id && (
             <Button variant="outline" size="icon" onClick={handleDelete} aria-label="Delete">
               <RiDeleteBinLine size={16} />
             </Button>
           )}
-          <div className="flex gap-2 justify-end">
+          <div className="flex gap-2 ">
             <Button variant="outline" onClick={handleClose}>
               Cancel
             </Button>

@@ -1,26 +1,36 @@
 'use client';
 
-import { useState } from 'react';
-import { format, startOfWeek, addWeeks, subWeeks, addDays } from 'date-fns';
+import { useEffect } from 'react';
+import { format, startOfWeek, addWeeks, subWeeks, addDays, isSameDay } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import clsx from 'clsx';
 import { Button } from './ui/button';
+import { useCalendarStore } from '@/stores/useCalendarStore';
+import { useSwipeable } from 'react-swipeable';
 
 const weekDays = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
 
 export function WeekSelector() {
-  const [currentWeekStart, setCurrentWeekStart] = useState(
-    startOfWeek(new Date(), { weekStartsOn: 0 })
-  );
-  const [selectedDate, setSelectedDate] = useState(new Date());
+  const { selectedDate, setSelectedDate, currentWeekStart, setCurrentWeekStart } =
+    useCalendarStore();
+
+  useEffect(() => {
+    setCurrentWeekStart(startOfWeek(selectedDate, { weekStartsOn: 0 }));
+  }, [selectedDate, setCurrentWeekStart]);
 
   const handlePrevWeek = () => {
-    setCurrentWeekStart((prev) => subWeeks(prev, 1));
+    setCurrentWeekStart(subWeeks(currentWeekStart, 1));
   };
 
   const handleNextWeek = () => {
-    setCurrentWeekStart((prev) => addWeeks(prev, 1));
+    setCurrentWeekStart(addWeeks(currentWeekStart, 1));
   };
+
+  const handlers = useSwipeable({
+    onSwipedLeft: () => setCurrentWeekStart(addWeeks(currentWeekStart, 1)),
+    onSwipedRight: () => setCurrentWeekStart(subWeeks(currentWeekStart, 1)),
+    delta: 50,
+  });
 
   return (
     <div className="text-white space-y-2">
@@ -32,23 +42,22 @@ export function WeekSelector() {
           &lt;
         </Button>
         <span className="font-semibold">
-          {format(currentWeekStart, 'MMMM dd', { locale: ptBR }).charAt(0).toUpperCase() +
-            format(currentWeekStart, 'MMMM dd', { locale: ptBR }).slice(1)}
-          -{' '}
-          {format(addDays(currentWeekStart, 6), 'MMMM dd', { locale: ptBR })
-            .charAt(0)
-            .toUpperCase() +
-            format(addDays(currentWeekStart, 6), 'MMMM dd', { locale: ptBR }).slice(1)}
+          {format(currentWeekStart, 'MMMM dd', { locale: ptBR })} -{' '}
+          {format(addDays(currentWeekStart, 6), 'MMMM dd', { locale: ptBR })}
         </span>
-        <button onClick={handleNextWeek} className="text-xl px-2 hover:text-blue-400">
+        <Button
+          onClick={handleNextWeek}
+          className="text-xl px-2 hover:text-blue-400 bg-background text-white"
+          {...handlers}
+        >
           &gt;
-        </button>
+        </Button>
       </div>
 
       <div className="flex justify-between">
         {weekDays.map((day, index) => {
           const date = addDays(currentWeekStart, index);
-          const isSelected = format(date, 'yyyy-MM-dd') === format(selectedDate, 'yyyy-MM-dd');
+          const isSelected = isSameDay(date, selectedDate);
 
           return (
             <button
@@ -63,7 +72,7 @@ export function WeekSelector() {
               <span
                 className={clsx(
                   'mt-1 w-8 h-8 flex items-center justify-center rounded-md',
-                  isSelected ? 'bg-blue-500 text-white' : ''
+                  isSelected ? 'bg-primary text-black' : ''
                 )}
               >
                 {format(date, 'd')}
