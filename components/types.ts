@@ -1,6 +1,6 @@
 import { TaskPriority, TaskStatus, TaskType } from '@/hooks/data/useTasksQuery';
 
-export type CalendarView = 'month' | 'week' | 'day' | 'agenda';
+export type CalendarView = 'mês' | 'semana' | 'dia' | 'agenda';
 
 export interface CalendarEvent {
   id: string;
