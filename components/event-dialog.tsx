@@ -114,11 +114,11 @@ export function EventDialog() {
     const payload = {
       name: title.trim() || '(no title)',
       description,
-      startDate: start.toISOString(),
-      dueDate: allDay ? undefined : end.toISOString(),
+      startDate: toLocalISOString(start),
+      dueDate: allDay ? undefined : toLocalISOString(end),
       status: 'TODO' as const,
       type: 'EVENT' as const,
-      priority: 'MEDIUM' as const,
+      priority,
     };
 
     if (task?.id) {
@@ -163,6 +163,18 @@ export function EventDialog() {
         <span>{option.label}</span>
       </div>
     ) : null;
+  }
+
+  function toLocalISOString(date: Date): string {
+    const pad = (n: number) => String(n).padStart(2, '0');
+    const yyyy = date.getFullYear();
+    const MM = pad(date.getMonth() + 1);
+    const dd = pad(date.getDate());
+    const hh = pad(date.getHours());
+    const mm = pad(date.getMinutes());
+    const ss = pad(date.getSeconds());
+
+    return `${yyyy}-${MM}-${dd}T${hh}:${mm}:${ss}`;
   }
 
   return (

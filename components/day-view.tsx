@@ -21,7 +21,6 @@ import { EventItem } from './event-item';
 import { DraggableEvent } from './draggable-event';
 import { DroppableCell } from './droppable-cell';
 import { useCalendarStore } from '@/stores/useCalendarStore';
-import { WeekSelector } from './WeekSelector';
 
 interface DayViewProps {
   events: CalendarEvent[];
