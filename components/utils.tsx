@@ -1,5 +1,16 @@
 import { isSameDay } from 'date-fns';
 import { CalendarEvent, EventColor } from './types';
+import { TaskPriority, TaskStatus, TaskType } from '@/hooks/data/useTasksQuery';
+import { JSX } from 'react';
+import { FaBookmark } from 'react-icons/fa6';
+import { FaBriefcase } from 'react-icons/fa6';
+import { BsCalendar2WeekFill } from 'react-icons/bs';
+import { RiLoader2Line, RiTimeFill } from '@remixicon/react';
+import { FaCheckCircle } from 'react-icons/fa';
+import { Circle, Minus } from 'lucide-react';
+import { HiFlag } from 'react-icons/hi';
+import { TiWarning } from 'react-icons/ti';
+import clsx from 'clsx';
 
 /**
  * Get CSS classes for event colors
@@ -125,4 +136,100 @@ export function addHoursToDate(date: Date, hours: number): Date {
   const result = new Date(date);
   result.setHours(result.getHours() + hours);
   return result;
+}
+
+export function getTaskTypeIcon(
+  type?: TaskType,
+  className?: string
+): { icon: JSX.Element | null; className: string } {
+  const defaultIconClass = 'w-5 h-5';
+  const wrapperBaseClass = 'rounded-full flex items-center justify-center p-2';
+
+  let icon: JSX.Element | null = null;
+  let bgClass = '';
+  let textClass = '';
+
+  switch (type) {
+    case 'PROJECT':
+      icon = <FaBriefcase className={className ?? defaultIconClass} />;
+      bgClass = 'bg-[#072059]';
+      textClass = 'text-[#83B7F3]';
+      break;
+    case 'STUDY':
+      icon = <FaBookmark className={className ?? defaultIconClass} />;
+      bgClass = 'bg-[#440E58]';
+      textClass = 'text-[#D899EF]';
+      break;
+    case 'EVENT':
+      icon = <BsCalendar2WeekFill className={className ?? defaultIconClass} />;
+      bgClass = 'bg-[#07590A]';
+      textClass = 'text-[#85E889]';
+      break;
+    default:
+      return { icon: null, className: '' };
+  }
+
+  return {
+    icon: <div className={clsx(wrapperBaseClass, bgClass, textClass)}>{icon}</div>,
+    className: clsx(wrapperBaseClass, bgClass, textClass),
+  };
+}
+
+export function getStatusBadge(status?: TaskStatus): { icon: JSX.Element; className: string } {
+  switch (status) {
+    case 'TODO':
+      return {
+        icon: <RiTimeFill className="w-3 h-3 sm:w-3 sm:h-3" />,
+        className:
+          'bg-gray-200 text-gray-800 dark:bg-gray-900 dark:text-gray-300 text-[9px] sm:text-[10px] px-1 py-0.5 sm:px-1.5',
+      };
+    case 'IN_PROGRESS':
+      return {
+        icon: <RiLoader2Line className="w-3 h-3 animate-spin-slow sm:w-3 sm:h-3" />,
+        className:
+          'bg-blue-200 text-blue-800 dark:bg-blue-900 dark:text-blue-300 text-[9px] sm:text-[10px] px-1 py-0.5 sm:px-1.5',
+      };
+    case 'DONE':
+      return {
+        icon: <FaCheckCircle className="w-3 h-3 sm:w-3 sm:h-3" />,
+        className:
+          'bg-emerald-200 text-green-800 dark:bg-green-900 dark:text-green-300 text-[9px] sm:text-[10px] px-1 py-0.5 sm:px-1.5',
+      };
+    default:
+      return {
+        icon: <Circle className="w-3 h-3 sm:w-3 sm:h-3" />,
+        className: 'bg-muted text-muted-foreground text-[9px] sm:text-[10px] px-1 py-0.5 sm:px-1.5',
+      };
+  }
+}
+
+export function getPriorityBadge(priority?: TaskPriority): {
+  icon: JSX.Element;
+  className: string;
+} {
+  switch (priority) {
+    case 'LOW':
+      return {
+        icon: <HiFlag className="w-3 h-3" />,
+        className:
+          'bg-emerald-200 text-green-800 dark:bg-green-900 dark:text-green-300 text-[9px] sm:text-[10px] px-1 py-0.5 sm:px-1.5',
+      };
+    case 'MEDIUM':
+      return {
+        icon: <HiFlag className="w-3 h-3" />,
+        className:
+          'bg-yellow-200 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200 text-[9px] sm:text-[10px] px-1 py-0.5 sm:px-1.5',
+      };
+    case 'HIGH':
+      return {
+        icon: <TiWarning className="w-3 h-3" />,
+        className:
+          'bg-red-200 text-red-800 dark:bg-red-900 dark:text-red-300 text-[9px] sm:text-[10px] px-1 py-0.5 sm:px-1.5',
+      };
+    default:
+      return {
+        icon: <Minus className="w-3 h-3" />,
+        className: 'bg-muted text-muted-foreground',
+      };
+  }
 }

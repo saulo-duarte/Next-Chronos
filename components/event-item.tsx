@@ -1,26 +1,19 @@
 'use client';
 
-import { JSX, useMemo } from 'react';
+import { useMemo } from 'react';
 import type { DraggableAttributes } from '@dnd-kit/core';
 import type { SyntheticListenerMap } from '@dnd-kit/core/dist/hooks/utilities';
 import { differenceInMinutes, format, getMinutes, isPast } from 'date-fns';
-import { BsCalendar2WeekFill } from 'react-icons/bs';
 import { cn } from '@/lib/utils';
 import { CalendarEvent } from './types';
-import { getBorderRadiusClasses, getEventColorClasses } from './utils';
-import { FaBookmark } from 'react-icons/fa6';
-import { FaBriefcase } from 'react-icons/fa6';
-import { TaskPriority, TaskStatus } from '@/hooks/data/useTasksQuery';
-import { RiLoader2Line, RiTimeFill } from '@remixicon/react';
-import { FaCheckCircle } from 'react-icons/fa';
-import { Circle, Minus } from 'lucide-react';
-import { TiWarning } from 'react-icons/ti';
-import { HiFlag } from 'react-icons/hi';
+import {
+  getBorderRadiusClasses,
+  getEventColorClasses,
+  getPriorityBadge,
+  getStatusBadge,
+  getTaskTypeIcon,
+} from './utils';
 
-// Using date-fns format with custom formatting:
-// 'h' - hours (1-12)
-// 'a' - am/pm
-// ':mm' - minutes with leading zero (only if the token 'mm' is present)
 const formatTimeWithOptionalMinutes = (date: Date) => {
   return format(date, getMinutes(date) === 0 ? 'ha' : 'h:mma').toLowerCase();
 };
@@ -40,7 +33,6 @@ interface EventWrapperProps {
   onTouchStart?: (e: React.TouchEvent) => void;
 }
 
-// Shared wrapper component for event styling
 function EventWrapper({
   event,
   isFirstDay = true,
@@ -92,7 +84,7 @@ interface EventItemProps {
   isDragging?: boolean;
   onClick?: (e: React.MouseEvent) => void;
   showTime?: boolean;
-  currentTime?: Date; // For updating time during drag
+  currentTime?: Date;
   isFirstDay?: boolean;
   isLastDay?: boolean;
   children?: React.ReactNode;
@@ -121,7 +113,6 @@ export function EventItem({
 }: EventItemProps) {
   const eventColor = event.color;
 
-  // Use the provided currentTime (for dragging) or the event's actual time
   const displayStart = useMemo(() => {
     return currentTime || new Date(event.start);
   }, [currentTime, event.start]);
@@ -135,7 +126,6 @@ export function EventItem({
       : new Date(event.end);
   }, [currentTime, event.start, event.end]);
 
-  // Calculate event duration in minutes
   const durationMinutes = useMemo(() => {
     return differenceInMinutes(displayEnd, displayStart);
   }, [displayStart, displayEnd]);
@@ -143,12 +133,10 @@ export function EventItem({
   const getEventTime = () => {
     if (event.allDay) return 'All day';
 
-    // For short events (less than 45 minutes), only show start time
     if (durationMinutes < 45) {
       return formatTimeWithOptionalMinutes(displayStart);
     }
 
-    // For longer events, show both start and end time
     return `${formatTimeWithOptionalMinutes(displayStart)} - ${formatTimeWithOptionalMinutes(displayEnd)}`;
   };
 
@@ -223,77 +211,6 @@ export function EventItem({
     );
   }
 
-  const getTaskTypeIcon = (type?: string) => {
-    const iconClass = 'h-full w-6';
-    switch (type) {
-      case 'PROJECT':
-        return <FaBriefcase className={iconClass} />;
-      case 'STUDY':
-        return <FaBookmark className={iconClass} />;
-      case 'EVENT':
-        return <BsCalendar2WeekFill className={iconClass} />;
-      default:
-        return null;
-    }
-  };
-
-  function getStatusBadge(status?: TaskStatus): { icon: JSX.Element; className: string } {
-    switch (status) {
-      case 'TODO':
-        return {
-          icon: <RiTimeFill className="w-3 h-3 sm:w-3 sm:h-3" />,
-          className:
-            'bg-gray-200 text-gray-800 dark:bg-gray-900 dark:text-gray-300 text-[9px] sm:text-[10px] px-1 py-0.5 sm:px-1.5',
-        };
-      case 'IN_PROGRESS':
-        return {
-          icon: <RiLoader2Line className="w-3 h-3 animate-spin-slow sm:w-3 sm:h-3" />,
-          className:
-            'bg-blue-200 text-blue-800 dark:bg-blue-900 dark:text-blue-300 text-[9px] sm:text-[10px] px-1 py-0.5 sm:px-1.5',
-        };
-      case 'DONE':
-        return {
-          icon: <FaCheckCircle className="w-3 h-3 sm:w-3 sm:h-3" />,
-          className:
-            'bg-emerald-200 text-green-800 dark:bg-green-900 dark:text-green-300 text-[9px] sm:text-[10px] px-1 py-0.5 sm:px-1.5',
-        };
-      default:
-        return {
-          icon: <Circle className="w-3 h-3 sm:w-3 sm:h-3" />,
-          className:
-            'bg-muted text-muted-foreground text-[9px] sm:text-[10px] px-1 py-0.5 sm:px-1.5',
-        };
-    }
-  }
-
-  function getPriorityBadge(priority?: TaskPriority): { icon: JSX.Element; className: string } {
-    switch (priority) {
-      case 'LOW':
-        return {
-          icon: <HiFlag className="w-3 h-3" />,
-          className:
-            'bg-emerald-200 text-green-800 dark:bg-green-900 dark:text-green-300 text-[9px] sm:text-[10px] px-1 py-0.5 sm:px-1.5',
-        };
-      case 'MEDIUM':
-        return {
-          icon: <HiFlag className="w-3 h-3" />,
-          className:
-            'bg-yellow-200 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200 text-[9px] sm:text-[10px] px-1 py-0.5 sm:px-1.5',
-        };
-      case 'HIGH':
-        return {
-          icon: <TiWarning className="w-3 h-3" />,
-          className:
-            'bg-red-200 text-red-800 dark:bg-red-900 dark:text-red-300 text-[9px] sm:text-[10px] px-1 py-0.5 sm:px-1.5',
-        };
-      default:
-        return {
-          icon: <Minus className="w-3 h-3" />,
-          className: 'bg-muted text-muted-foreground',
-        };
-    }
-  }
-
   function formatLabel(text?: string) {
     if (!text) return '';
     const lower = text.toLowerCase().replace(/_/g, ' ');
@@ -314,7 +231,7 @@ export function EventItem({
       {...dndListeners}
       {...dndAttributes}
     >
-      <div className="flex items-center">{getTaskTypeIcon(event.type)}</div>
+      <div className="flex items-center">{getTaskTypeIcon(event.type).icon}</div>
 
       <div className="flex flex-col flex-1 gap-1">
         <div className="text-sm font-medium">{event.title}</div>

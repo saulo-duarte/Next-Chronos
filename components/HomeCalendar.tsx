@@ -2,12 +2,12 @@
 
 import { useState, useMemo } from 'react';
 import { addDays, parseISO } from 'date-fns';
-import { useParams } from 'next/navigation';
-
 import { EventCalendar } from './event-calendar';
 import { CalendarEvent } from './types';
 import { TaskType, useTasks } from '@/hooks/data/useTasksQuery';
 import { Task } from '@/hooks/data/useTasksQuery';
+import { useCalendarStore } from '@/stores/useCalendarStore';
+import { WeekSelector } from './WeekSelector';
 
 const getTaskTypeColor = (taskType: TaskType): CalendarEvent['color'] => {
   switch (taskType) {
@@ -52,11 +52,9 @@ const taskToCalendarEvent = (task: Task): CalendarEvent => {
 };
 
 export default function TaskCalendar() {
-  const params = useParams();
-  const projectId = params?.id as string;
   const { data: tasks, isLoading, isError, error, refetch } = useTasks();
+  const { calendarView } = useCalendarStore();
 
-  // Converte tasks em eventos do calendário
   const calendarEvents = useMemo(() => {
     if (!tasks) return [];
     return tasks.map(taskToCalendarEvent);
@@ -64,26 +62,21 @@ export default function TaskCalendar() {
 
   const [events, setEvents] = useState<CalendarEvent[]>([]);
 
-  // Atualiza os eventos quando as tasks são carregadas
   useMemo(() => {
     setEvents(calendarEvents);
   }, [calendarEvents]);
 
   const handleEventAdd = (event: CalendarEvent) => {
-    // Aqui você pode implementar a criação de uma nova task
-    // Por enquanto, apenas adiciona ao estado local
     setEvents([...events, event]);
     console.log('Nova task a ser criada:', event);
   };
 
   const handleEventUpdate = (updatedEvent: CalendarEvent) => {
-    // Aqui você pode implementar a atualização de uma task existente
     setEvents(events.map((event) => (event.id === updatedEvent.id ? updatedEvent : event)));
     console.log('Task a ser atualizada:', updatedEvent);
   };
 
   const handleEventDelete = (eventId: string) => {
-    // Aqui você pode implementar a exclusão de uma task
     setEvents(events.filter((event) => event.id !== eventId));
     console.log('Task a ser excluída:', eventId);
   };
@@ -99,7 +92,7 @@ export default function TaskCalendar() {
 
   if (isError) {
     return (
-      <div className="max-w-7xl mx-auto mt-10 p-4">
+      <div className="max-w-7xl mx-auto p-4">
         <h1 className="text-2xl font-bold mb-4">Calendário de Tarefas</h1>
         <p className="text-red-500">Erro ao carregar tarefas: {String(error)}</p>
         <button
@@ -113,14 +106,12 @@ export default function TaskCalendar() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto mt-10 p-4">
-      <div className="mb-4">
-        <h1 className="text-2xl font-bold mb-2">Calendário de Tarefas</h1>
-        <p className="text-gray-600">
-          {tasks?.length || 0} tarefas carregadas
-          {projectId && ` • Projeto: ${projectId}`}
-        </p>
-      </div>
+    <div className="w-full mt-2">
+      {calendarView === 'semana' || calendarView === 'dia' ? (
+        <div className="max-w-7xl mx-auto px-4 mb-4">
+          <WeekSelector />
+        </div>
+      ) : null}
 
       <EventCalendar
         events={events}
