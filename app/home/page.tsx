@@ -8,7 +8,7 @@ import HomeCalendar from '@/components/HomeCalendar';
 import { WeekSelector } from '@/components/WeekSelector';
 
 function PageHeader() {
-  const [activeTab, setActiveTab] = useState<'task' | 'resumo'>('task');
+  const [activeTab, setActiveTab] = useState<'Atividades' | 'Estatísticas'>('Atividades');
 
   return (
     <>
@@ -17,10 +17,10 @@ function PageHeader() {
           <Image src="/icons/Logo Chronos.png" alt="Logo" width={32} height={32} />
         </div>
         <nav className="flex">
-          {['task', 'resumo'].map((tab) => (
+          {['Atividades', 'Estatísticas'].map((tab) => (
             <button
               key={tab}
-              onClick={() => setActiveTab(tab as 'task' | 'resumo')}
+              onClick={() => setActiveTab(tab as 'Atividades' | 'Estatísticas')}
               className={clsx(
                 'flex-1 py-2 text-center text-sm transition-colors',
                 activeTab === tab
@@ -28,7 +28,7 @@ function PageHeader() {
                   : 'text-muted-foreground'
               )}
             >
-              {tab === 'task' ? 'Task' : 'Resumo'}
+              {tab === 'Atividades' ? 'Atividades' : 'Estatísticas'}
             </button>
           ))}
         </nav>
