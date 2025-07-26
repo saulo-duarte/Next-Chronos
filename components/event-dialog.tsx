@@ -4,16 +4,8 @@ import { useEffect, useState } from 'react';
 import { RiDeleteBinLine } from '@remixicon/react';
 
 import { useTaskStore } from '@/stores/useTaskStore';
-import {
-  TaskPayload,
-  TaskPriority,
-  UpdateTaskPayload,
-  useCreateTask,
-  useDeleteTask,
-  useTask,
-  useUpdateTask,
-} from '@/hooks/data/useTasksQuery';
-
+import { useCreateTask, useDeleteTask, useTask, useUpdateTask } from '@/hooks/data/useTasksQuery';
+import { TaskPayload, UpdateTaskPayload, TaskPriority } from '@/types/Task';
 import { DefaultEndHour, DefaultStartHour, EndHour, StartHour } from '@/components/constants';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from './ui/dialog';
 import { Label } from './ui/label';
@@ -26,7 +18,12 @@ import { BsFillFlagFill } from 'react-icons/bs';
 import { TiWarning } from 'react-icons/ti';
 import { DatePicker } from './DatePicker';
 
-export function EventDialog() {
+interface EventDialogProps {
+  isProject?: boolean;
+  projectId?: string;
+}
+
+export function EventDialog({ isProject = false, projectId }: EventDialogProps) {
   const { selectedTaskId, isModalOpen, setModalOpen, setSelectedTask } = useTaskStore();
   const { data: task } = useTask(selectedTaskId ?? '');
   const createTask = useCreateTask();
@@ -89,6 +86,11 @@ export function EventDialog() {
       return;
     }
 
+    if (isProject && !projectId) {
+      setError('Projeto inválido ou não informado.');
+      return;
+    }
+
     const [startHour, startMinute] = startTime.split(':').map(Number);
     const [endHour, endMinute] = endTime.split(':').map(Number);
 
@@ -111,6 +113,12 @@ export function EventDialog() {
         status: task.status,
         priority,
       };
+
+      if (isProject && projectId) {
+        (payload as any).projectId = projectId;
+        (payload as any).type = 'PROJECT';
+      }
+
       updateTask.mutate(payload, { onSuccess: handleClose });
     } else {
       const payload: TaskPayload = {
@@ -119,16 +127,18 @@ export function EventDialog() {
         startDate: startISO,
         dueDate: endISO,
         status: 'TODO',
-        type: 'EVENT',
+        type: isProject ? 'PROJECT' : 'EVENT',
         priority,
+        projectId: isProject ? projectId : undefined,
       };
+
       createTask.mutate(payload, { onSuccess: handleClose });
     }
   };
 
   const handleDelete = () => {
     if (task?.id) {
-      deleteTask.mutate(task.id, { onSuccess: handleClose });
+      deleteTask.mutate({ id: task.id, projectId: projectId }, { onSuccess: handleClose });
     }
   };
 
