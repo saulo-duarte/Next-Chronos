@@ -33,7 +33,7 @@ function PageHeader() {
         </nav>
       </header>
 
-      <div className="px-2 py-2 md:px-4 md:py-4 space-y-4 mb-20">
+      <div className="space-y-4 mb-20">
         <HomeCalendar />
       </div>
 
