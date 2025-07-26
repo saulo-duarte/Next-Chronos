@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { TaskFilters, TaskStatus, TaskType, TaskPriority } from '@/hooks/data/useTasksQuery';
+import { TaskFilters, TaskPriority, TaskStatus, TaskType } from '@/types/Task';
 
 interface TaskUIState {
   selectedTaskId: string | null;
@@ -23,7 +23,6 @@ interface TaskUIState {
 }
 
 export const useTaskStore = create<TaskUIState>((set, get) => ({
-  // Estados iniciais
   selectedTaskId: null,
   isModalOpen: false,
   filters: {},
