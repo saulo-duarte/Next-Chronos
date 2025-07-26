@@ -7,7 +7,16 @@ import {
   DropdownMenuTrigger,
 } from './ui/dropdown-menu';
 import { Button } from './ui/button';
-import { ChevronDownIcon, ChevronLeftIcon, ChevronRightIcon, PlusIcon } from 'lucide-react';
+import { Badge } from './ui/badge';
+import {
+  ChevronDownIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  PlusIcon,
+  FilterXIcon,
+} from 'lucide-react';
+import { useTaskStore } from '@/stores/useTaskStore';
+import { TaskStatus } from '@/hooks/data/useTasksQuery';
 
 interface Props {
   view: string;
@@ -16,9 +25,15 @@ interface Props {
   onNext: () => void;
   setView: (view: string) => void;
   onNewEvent: () => void;
-  onStatusFilterChange?: (status: string) => void;
   className?: string;
 }
+
+const statusOptions: { label: string; value: TaskStatus | 'ALL' }[] = [
+  { label: 'Todos', value: 'ALL' },
+  { label: 'A Fazer', value: 'TODO' },
+  { label: 'Em Andamento', value: 'IN_PROGRESS' },
+  { label: 'Completo', value: 'DONE' },
+];
 
 export function CalendarHeader({
   view,
@@ -27,77 +42,144 @@ export function CalendarHeader({
   onNext,
   setView,
   onNewEvent,
-  onStatusFilterChange,
   className,
 }: Props) {
+  const { filters, setStatusFilter, clearFilters, hasActiveFilters } = useTaskStore();
+
+  const currentStatusLabel = (() => {
+    if (!filters.status) return 'Todos';
+
+    if (Array.isArray(filters.status)) {
+      if (filters.status.length === 0) return 'Todos';
+      if (filters.status && filters.status.length === 1) {
+        return (
+          statusOptions.find((opt) =>
+            Array.isArray(filters.status) && filters.status[0] !== undefined
+              ? opt.value === filters.status[0]
+              : false
+          )?.label ?? 'Status'
+        );
+      }
+      return `${filters.status.length} status`;
+    }
+
+    return statusOptions.find((opt) => opt.value === filters.status)?.label ?? 'Status';
+  })();
+
+  const handleStatusChange = (value: TaskStatus | 'ALL') => {
+    if (value === 'ALL') {
+      setStatusFilter(undefined);
+    } else {
+      setStatusFilter(value);
+    }
+  };
+
   return (
-    <div className={`space-y-2 ${className ?? ''} mb-4`}>
+    <div className={`space-y-3 ${className ?? ''} mb-4`}>
       {view === 'mês' && (
         <div className="flex items-center gap-2">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center">
             <Button variant="ghost" size="icon" onClick={onPrevious}>
-              <ChevronLeftIcon size={20} />
+              <ChevronLeftIcon className="h-4 w-4" />
             </Button>
             <Button variant="ghost" size="icon" onClick={onNext}>
-              <ChevronRightIcon size={20} />
+              <ChevronRightIcon className="h-4 w-4" />
             </Button>
           </div>
-          <h2 className="text-xl md:text-2xl font-bold">{viewTitle}</h2>
+          <h2 className="text-lg font-bold truncate sm:text-xl md:text-2xl">{viewTitle}</h2>
         </div>
       )}
 
-      <div className="flex justify-between items-center">
+      <div className="flex items-center justify-between gap-1 sm:gap-2">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="gap-1 text-base md:text-lg">
-              <BsCalendarFill size={16} className="mr-2" />
-              <span>{view.charAt(0).toUpperCase() + view.slice(1)}</span>
-              <ChevronDownIcon size={16} className="-me-1 opacity-60" />
+            <Button variant="ghost" size="sm" className="gap-1 px-2 sm:px-3">
+              <BsCalendarFill className="h-4 w-4 flex-shrink-0" />
+              <span className="text-sm sm:text-base">
+                {view.charAt(0).toUpperCase() + view.slice(1)}
+              </span>
+              <ChevronDownIcon className="h-3 w-3 opacity-60 sm:h-4 sm:w-4" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent className="min-w-32">
+          <DropdownMenuContent align="start" className="w-32">
             {(['mês', 'semana', 'dia', 'agenda'] as const).map((v) => (
-              <DropdownMenuItem key={v} onClick={() => setView(v)}>
-                {v[0].toUpperCase() + v.slice(1)}
-                <DropdownMenuShortcut>{v[0].toUpperCase()}</DropdownMenuShortcut>
+              <DropdownMenuItem
+                key={v}
+                onClick={() => setView(v)}
+                className={view === v ? 'bg-accent' : ''}
+              >
+                {v.charAt(0).toUpperCase() + v.slice(1)}
+                <DropdownMenuShortcut className="hidden sm:inline">
+                  {v.charAt(0).toUpperCase()}
+                </DropdownMenuShortcut>
               </DropdownMenuItem>
             ))}
           </DropdownMenuContent>
         </DropdownMenu>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1 sm:gap-2">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="gap-1 text-base md:text-lg">
-                <BsClockFill size={16} className="mr-2" />
-                <span>Todos</span>
-                <ChevronDownIcon size={16} className="-me-1 opacity-60" />
+              <Button variant="ghost" size="sm" className="gap-1 px-2 sm:px-3">
+                <BsClockFill className="h-4 w-4 flex-shrink-0" />
+                <span className="text-sm sm:text-base max-w-16 truncate sm:max-w-none">
+                  {currentStatusLabel}
+                </span>
+                <ChevronDownIcon className="h-3 w-3 opacity-60 sm:h-4 sm:w-4" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent className="min-w-32">
-              <DropdownMenuItem onClick={() => onStatusFilterChange?.('all')}>
-                Todos
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => onStatusFilterChange?.('todo')}>
-                Todo
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => onStatusFilterChange?.('in_progress')}>
-                Em Andamento
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => onStatusFilterChange?.('complete')}>
-                Completo
-              </DropdownMenuItem>
+            <DropdownMenuContent align="end" className="w-40">
+              {statusOptions.map(({ label, value }) => (
+                <DropdownMenuItem
+                  key={value}
+                  onClick={() => handleStatusChange(value)}
+                  className={
+                    (value === 'ALL' && !filters.status) ||
+                    (value !== 'ALL' && filters.status === value)
+                      ? 'bg-accent'
+                      : ''
+                  }
+                >
+                  {label}
+                </DropdownMenuItem>
+              ))}
             </DropdownMenuContent>
           </DropdownMenu>
 
-          <div className="max-[479px]:hidden">
-            <Button size="sm" onClick={onNewEvent}>
-              <PlusIcon size={16} />
-              <span className="max-sm:sr-only">Novo Evento</span>
+          {hasActiveFilters() && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={clearFilters}
+              className="px-2 text-muted-foreground hover:text-foreground"
+              title="Limpar filtros"
+            >
+              <FilterXIcon className="h-4 w-4" />
+              <span className="sr-only sm:not-sr-only sm:ml-1 text-xs">Limpar</span>
             </Button>
-          </div>
+          )}
+
+          <Button
+            size="sm"
+            onClick={onNewEvent}
+            className="px-2 sm:px-4 sr-only sm:not-sr-only sm:ml-1"
+          >
+            <PlusIcon className="h-4 w-4" />
+            <span className="sr-only sm:not-sr-only sm:ml-1">Novo</span>
+          </Button>
         </div>
       </div>
+
+      {hasActiveFilters() && (
+        <div className="flex items-center gap-2 sm:hidden">
+          <span className="text-xs text-muted-foreground">Filtro:</span>
+          {filters.status && (
+            <Badge variant="secondary" className="text-xs">
+              {currentStatusLabel}
+            </Badge>
+          )}
+        </div>
+      )}
     </div>
   );
 }
