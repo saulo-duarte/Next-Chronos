@@ -1,6 +1,5 @@
 import { isSameDay } from 'date-fns';
 import { CalendarEvent, EventColor } from './types';
-import { TaskPriority, TaskStatus, TaskType } from '@/hooks/data/useTasksQuery';
 import { JSX } from 'react';
 import { FaBookmark } from 'react-icons/fa6';
 import { FaBriefcase } from 'react-icons/fa6';
@@ -11,6 +10,7 @@ import { Circle, Minus } from 'lucide-react';
 import { HiFlag } from 'react-icons/hi';
 import { TiWarning } from 'react-icons/ti';
 import clsx from 'clsx';
+import { TaskType, TaskStatus, TaskPriority } from '@/types/Task';
 
 /**
  * Get CSS classes for event colors

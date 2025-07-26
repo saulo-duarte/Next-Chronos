@@ -3,11 +3,12 @@ import { useMemo } from 'react';
 import { addDays, parseISO } from 'date-fns';
 import { EventCalendar } from './event-calendar';
 import { CalendarEvent } from './types';
-import { TaskType, useFilteredTasks } from '@/hooks/data/useTasksQuery';
-import { Task } from '@/hooks/data/useTasksQuery';
+import { useFilteredTasks } from '@/hooks/data/useTasksQuery';
+import { Task } from '@/types/Task';
 import { useCalendarStore } from '@/stores/useCalendarStore';
 import { useTaskStore } from '@/stores/useTaskStore';
 import { WeekSelector } from './WeekSelector';
+import { TaskType } from '@/types/Task';
 
 const getTaskTypeColor = (taskType: TaskType): CalendarEvent['color'] => {
   switch (taskType) {

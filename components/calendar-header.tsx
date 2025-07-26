@@ -16,7 +16,7 @@ import {
   FilterXIcon,
 } from 'lucide-react';
 import { useTaskStore } from '@/stores/useTaskStore';
-import { TaskStatus } from '@/hooks/data/useTasksQuery';
+import { TaskStatus } from '@/types/Task';
 
 interface Props {
   view: string;
