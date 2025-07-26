@@ -8,10 +8,10 @@ export function FloatingNewProjectButton() {
     <div className="fixed right-6 z-50 sm:hidden bottom-[72px] xs:bottom-[72px]">
       {' '}
       <button
-        className="flex items-center gap-2 rounded-full p-3 bg-blue-900/50 hover:bg-blue-600"
+        className="fixed bottom-24 right-6 z-50 flex h-[54px] w-[54px] items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg transition hover:bg-primary/90"
         onClick={() => setIsAddModalOpen(true)}
       >
-        <FaFolderPlus className="w-8 h-8" />
+        <FaFolderPlus className="w-6 h-6" />
       </button>
     </div>
   );

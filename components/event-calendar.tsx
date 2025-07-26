@@ -21,14 +21,11 @@ import { useCalendarStore } from '@/stores/useCalendarStore';
 
 export interface EventCalendarProps {
   events?: CalendarEvent[];
-  onEventAdd?: (event: CalendarEvent) => void;
-  onEventUpdate?: (event: CalendarEvent) => void;
-  onEventDelete?: (eventId: string) => void;
   className?: string;
   initialView?: CalendarView;
 }
 
-export function EventCalendar({ events = [], onEventUpdate, className }: EventCalendarProps) {
+export function EventCalendar({ events = [], className }: EventCalendarProps) {
   const [currentDate, setCurrentDate] = useState(new Date());
   const { calendarView: view, setCalendarView: setView } = useCalendarStore();
   const { setSelectedTask, setModalOpen } = useTaskStore();
@@ -48,7 +45,6 @@ export function EventCalendar({ events = [], onEventUpdate, className }: EventCa
   };
 
   const handleEventUpdateInternal = (updatedEvent: CalendarEvent) => {
-    onEventUpdate?.(updatedEvent);
     toast(`Evento "${updatedEvent.title}" movido`, {
       description: format(new Date(updatedEvent.start), 'MMM d, yyyy'),
       position: 'bottom-left',
@@ -118,7 +114,7 @@ export function EventCalendar({ events = [], onEventUpdate, className }: EventCa
       <div className="min-[480px]:hidden">
         <button
           type="button"
-          className="fixed bottom-24 right-6 z-50 flex h-12 w-12 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg transition hover:bg-primary/90"
+          className="fixed bottom-24 right-6 z-50 flex h-[54px] w-[54px] items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg transition hover:bg-primary/90"
           onClick={() => {
             setSelectedTask(null);
             setModalOpen(true);
