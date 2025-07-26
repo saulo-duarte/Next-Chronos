@@ -1,4 +1,4 @@
-import { TaskPriority, TaskStatus, TaskType } from '@/hooks/data/useTasksQuery';
+import { TaskType, TaskStatus, TaskPriority } from '@/types/Task';
 
 export type CalendarView = 'mês' | 'semana' | 'dia' | 'agenda';
 
