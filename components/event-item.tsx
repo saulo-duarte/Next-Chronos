@@ -13,6 +13,9 @@ import {
   getStatusBadge,
   getTaskTypeIcon,
 } from './utils';
+import { useUpdateTask } from '@/hooks/data/useTasksQuery';
+import { Checkbox } from './ui/checkbox';
+import { AnimatePresence, motion } from 'framer-motion';
 
 const formatTimeWithOptionalMinutes = (date: Date) => {
   return format(date, getMinutes(date) === 0 ? 'ha' : 'h:mma').toLowerCase();
@@ -217,10 +220,14 @@ export function EventItem({
     return lower.charAt(0).toUpperCase() + lower.slice(1);
   }
 
+  const updateTask = useUpdateTask();
+
   return (
-    <button
+    <div
+      role="button"
+      tabIndex={0}
       className={cn(
-        'relative flex w-full flex-row items-stretch gap-2 rounded-md px-4 py-2 text-left transition outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] data-past-event:line-through data-past-event:opacity-90',
+        'relative flex w-full flex-row items-stretch gap-2 rounded-md px-2 py-2 text-left transition outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] data-past-event:line-through data-past-event:opacity-90',
         getEventColorClasses(eventColor),
         className
       )}
@@ -234,7 +241,11 @@ export function EventItem({
       <div className="flex items-center">{getTaskTypeIcon(event.type).icon}</div>
 
       <div className="flex flex-col flex-1 gap-1">
-        <div className="text-sm font-medium">{event.title}</div>
+        <div className="text-sm font-medium">
+          <span className={event.status === 'DONE' ? 'line-through opacity-70' : ''}>
+            {event.title}
+          </span>
+        </div>
 
         <div className="text-xs opacity-70">
           {event.allDay ? (
@@ -248,24 +259,56 @@ export function EventItem({
         </div>
       </div>
 
+      <div className="absolute right-1 top-1 z-10">
+        <AnimatePresence>
+          {event.status === 'DONE' && (
+            <motion.div
+              key="check"
+              initial={{ scale: 0.6, opacity: 0 }}
+              animate={{ scale: 1.2, opacity: 1 }}
+              exit={{ scale: 0.8, opacity: 0 }}
+              transition={{ type: 'spring', stiffness: 300, damping: 15 }}
+              className="absolute right-1 top-1 z-10"
+            >
+              <Checkbox
+                id={`status-${event.id}`}
+                checked={true}
+                onCheckedChange={(checked) => {
+                  const newStatus = checked ? 'DONE' : 'TODO';
+                  updateTask.mutate({ id: event.id, status: newStatus });
+                }}
+                onClick={(e) => e.stopPropagation()}
+                className="border-[1.5px] border-green-800 data-[state=checked]:!bg-transparent data-[state=checked]:text-green-700 data-[state=checked]:border-0 transition-colors"
+              />
+            </motion.div>
+          )}
+
+          {event.status !== 'DONE' && (
+            <motion.div
+              key="uncheck"
+              initial={{ scale: 0.6, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.6, opacity: 0 }}
+              transition={{ type: 'spring', stiffness: 200, damping: 20 }}
+              className="absolute right-1 top-1 z-10"
+            >
+              <Checkbox
+                id={`status-${event.id}`}
+                checked={false}
+                onCheckedChange={(checked) => {
+                  const newStatus = checked ? 'DONE' : 'TODO';
+                  updateTask.mutate({ id: event.id, status: newStatus });
+                }}
+                onClick={(e) => e.stopPropagation()}
+                className="border-[1.5px] border-green-800 data-[state=checked]:!bg-transparent data-[state=checked]:text-green-700 transition-colors"
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+
       {(event.status || event.priority) && (
         <div className="absolute bottom-1 right-1 flex items-center gap-1">
-          {event.status &&
-            (() => {
-              const { icon, className } = getStatusBadge(event.status);
-              return (
-                <span
-                  className={cn(
-                    'flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] font-semibold',
-                    className
-                  )}
-                >
-                  {icon}
-                  {formatLabel(event.status)}
-                </span>
-              );
-            })()}
-
           {event.priority &&
             (() => {
               const { icon, className } = getPriorityBadge(event.priority);
@@ -281,8 +324,24 @@ export function EventItem({
                 </span>
               );
             })()}
+
+          {event.status &&
+            (() => {
+              const { icon, className } = getStatusBadge(event.status);
+              return (
+                <span
+                  className={cn(
+                    'flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] font-semibold',
+                    className
+                  )}
+                >
+                  {icon}
+                  {formatLabel(event.status)}
+                </span>
+              );
+            })()}
         </div>
       )}
-    </button>
+    </div>
   );
 }

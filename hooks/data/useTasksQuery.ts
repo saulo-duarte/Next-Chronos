@@ -1,35 +1,8 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMemo } from 'react';
 import api from '@/lib/api';
-
-export type TaskStatus = 'TODO' | 'IN_PROGRESS' | 'DONE';
-export type TaskType = 'PROJECT' | 'STUDY' | 'EVENT';
-export type TaskPriority = 'LOW' | 'MEDIUM' | 'HIGH';
-
-export interface Task {
-  id: string;
-  name: string;
-  description?: string;
-  status: TaskStatus;
-  type: TaskType;
-  priority: TaskPriority;
-  dueDate?: string;
-  startDate?: string;
-  doneAt?: string;
-  created_at: string;
-  updatedAt: string;
-  projectId?: string;
-}
-
-export interface TaskPayload {
-  name: string;
-  description?: string;
-  status: TaskStatus;
-  type: TaskType;
-  priority: TaskPriority;
-  dueDate?: string;
-  startDate?: string;
-  projectId?: string;
-}
+import { Task, TaskFilters, TaskPayload, UpdateTaskPayload } from '@/types/Task';
+import { filterTasks } from '@/utils/filter-task';
 
 const API_URL = 'project/tasks';
 
@@ -41,6 +14,21 @@ export function useTasks() {
       return res.data;
     },
   });
+}
+
+export function useFilteredTasks(filters?: TaskFilters) {
+  const { data: allTasks, ...queryResult } = useTasks();
+
+  const filteredTasks = useMemo(() => {
+    if (!allTasks) return [];
+    return filterTasks(allTasks, filters);
+  }, [allTasks, filters]);
+
+  return {
+    ...queryResult,
+    data: filteredTasks,
+    tasks: filteredTasks,
+  };
 }
 
 export function useTask(id: string) {
@@ -56,40 +44,60 @@ export function useTask(id: string) {
 
 export function useCreateTask() {
   const queryClient = useQueryClient();
+
   return useMutation({
     mutationFn: async (data: Omit<TaskPayload, 'id' | 'createdAt' | 'updatedAt'>) => {
-      console.log('Creating task with data:', data);
       const res = await api.post(API_URL, data);
       return res.data;
     },
-    onSuccess: () => {
+    onSuccess: (createdTask) => {
       queryClient.invalidateQueries({ queryKey: ['tasks'] });
+
+      if (createdTask.projectId) {
+        queryClient.invalidateQueries({
+          queryKey: ['projectTasks', createdTask.projectId],
+        });
+      }
     },
   });
 }
 
 export function useUpdateTask() {
   const queryClient = useQueryClient();
+
   return useMutation({
-    mutationFn: async ({ id, ...data }: Partial<Task> & { id: string }) => {
+    mutationFn: async ({ id, ...data }: { id: string } & UpdateTaskPayload) => {
       const res = await api.put(`${API_URL}/${id}`, data);
       return res.data;
     },
-    onSuccess: (_data, variables) => {
+    onSuccess: (updatedTask, variables) => {
       queryClient.invalidateQueries({ queryKey: ['tasks'] });
       queryClient.invalidateQueries({ queryKey: ['tasks', variables.id] });
+
+      if (updatedTask.projectId) {
+        queryClient.invalidateQueries({ queryKey: ['projectTasks', updatedTask.projectId] });
+      }
     },
   });
 }
 
+type DeleteTaskPayload = {
+  id: string;
+  projectId?: string;
+};
+
 export function useDeleteTask() {
   const queryClient = useQueryClient();
+
   return useMutation({
-    mutationFn: async (id: string) => {
+    mutationFn: async ({ id }: DeleteTaskPayload) => {
       await api.delete(`${API_URL}/${id}`);
     },
-    onSuccess: () => {
+    onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: ['tasks'] });
+      if (variables?.projectId) {
+        queryClient.invalidateQueries({ queryKey: ['projectTasks', variables.projectId] });
+      }
     },
   });
 }

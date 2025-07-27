@@ -1,13 +1,14 @@
 'use client';
 
-import { Search, User, PlusCircle } from 'lucide-react';
+import { User, PlusCircle } from 'lucide-react';
 import { IoHome } from 'react-icons/io5';
 import { useRouter, usePathname } from 'next/navigation';
 import clsx from 'clsx';
+import { FaSuitcase } from 'react-icons/fa';
 
 const navItems = [
   { label: 'Home', icon: IoHome, href: '/home' },
-  { label: 'Projetos', icon: Search, href: '/projetos' },
+  { label: 'Projetos', icon: FaSuitcase, href: '/projetos' },
   { label: 'Novo', icon: PlusCircle, href: '/new' },
   { label: 'Perfil', icon: User, href: '/profile' },
 ];

@@ -1,18 +1,11 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { isBefore } from 'date-fns';
 import { RiDeleteBinLine } from '@remixicon/react';
 
 import { useTaskStore } from '@/stores/useTaskStore';
-import {
-  TaskPriority,
-  useCreateTask,
-  useDeleteTask,
-  useTask,
-  useUpdateTask,
-} from '@/hooks/data/useTasksQuery';
-
+import { useCreateTask, useDeleteTask, useTask, useUpdateTask } from '@/hooks/data/useTasksQuery';
+import { TaskPayload, UpdateTaskPayload, TaskPriority } from '@/types/Task';
 import { DefaultEndHour, DefaultStartHour, EndHour, StartHour } from '@/components/constants';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from './ui/dialog';
 import { Label } from './ui/label';
@@ -23,8 +16,14 @@ import { Button } from './ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { BsFillFlagFill } from 'react-icons/bs';
 import { TiWarning } from 'react-icons/ti';
+import { DatePicker } from './DatePicker';
 
-export function EventDialog() {
+interface EventDialogProps {
+  isProject?: boolean;
+  projectId?: string;
+}
+
+export function EventDialog({ isProject = false, projectId }: EventDialogProps) {
   const { selectedTaskId, isModalOpen, setModalOpen, setSelectedTask } = useTaskStore();
   const { data: task } = useTask(selectedTaskId ?? '');
   const createTask = useCreateTask();
@@ -33,8 +32,8 @@ export function EventDialog() {
 
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [startDate, setStartDate] = useState(new Date());
-  const [endDate, setEndDate] = useState(new Date());
+  const [startDate, setStartDate] = useState<Date | undefined>(new Date());
+  const [endDate, setEndDate] = useState<Date | undefined>(new Date());
   const [startTime, setStartTime] = useState(`${DefaultStartHour}:00`);
   const [endTime, setEndTime] = useState(`${DefaultEndHour}:00`);
   const [allDay, setAllDay] = useState(false);
@@ -82,55 +81,64 @@ export function EventDialog() {
   };
 
   const handleSave = () => {
-    const start = new Date(startDate);
-    const end = new Date(endDate);
-
-    if (!allDay) {
-      const [startHours, startMinutes] = startTime.split(':').map(Number);
-      const [endHours, endMinutes] = endTime.split(':').map(Number);
-
-      if (
-        startHours < StartHour ||
-        startHours > EndHour ||
-        endHours < StartHour ||
-        endHours > EndHour
-      ) {
-        setError(`Time must be between ${StartHour}:00 and ${EndHour}:00`);
-        return;
-      }
-
-      start.setHours(startHours, startMinutes, 0, 0);
-      end.setHours(endHours, endMinutes, 0, 0);
-
-      if (isBefore(end, start)) {
-        setError('End date must be after start date');
-        return;
-      }
-    } else {
-      start.setHours(0, 0, 0, 0);
-      end.setHours(23, 59, 59, 999);
+    if (!startDate || !endDate) {
+      setError('Por favor, selecione as datas de início e término.');
+      return;
     }
 
-    const payload = {
-      name: title.trim() || '(no title)',
-      description,
-      startDate: toLocalISOString(start),
-      dueDate: allDay ? undefined : toLocalISOString(end),
-      status: 'TODO' as const,
-      type: 'EVENT' as const,
-      priority,
-    };
+    if (isProject && !projectId) {
+      setError('Projeto inválido ou não informado.');
+      return;
+    }
+
+    const [startHour, startMinute] = startTime.split(':').map(Number);
+    const [endHour, endMinute] = endTime.split(':').map(Number);
+
+    const start = new Date(startDate);
+    start.setHours(startHour, startMinute, 0, 0);
+
+    const end = new Date(endDate);
+    end.setHours(endHour, endMinute, 0, 0);
+
+    const startISO = toLocalISOString(start);
+    const endISO = allDay ? undefined : toLocalISOString(end);
 
     if (task?.id) {
-      updateTask.mutate({ id: task.id, ...payload }, { onSuccess: handleClose });
+      const payload: UpdateTaskPayload = {
+        id: task.id,
+        name: title.trim() || '(no title)',
+        description,
+        startDate: startISO,
+        dueDate: endISO,
+        status: task.status,
+        priority,
+      };
+
+      if (isProject && projectId) {
+        (payload as any).projectId = projectId;
+        (payload as any).type = 'PROJECT';
+      }
+
+      updateTask.mutate(payload, { onSuccess: handleClose });
     } else {
+      const payload: TaskPayload = {
+        name: title.trim() || '(no title)',
+        description,
+        startDate: startISO,
+        dueDate: endISO,
+        status: 'TODO',
+        type: isProject ? 'PROJECT' : 'EVENT',
+        priority,
+        projectId: isProject ? projectId : undefined,
+      };
+
       createTask.mutate(payload, { onSuccess: handleClose });
     }
   };
 
   const handleDelete = () => {
     if (task?.id) {
-      deleteTask.mutate(task.id, { onSuccess: handleClose });
+      deleteTask.mutate({ id: task.id, projectId: projectId }, { onSuccess: handleClose });
     }
   };
 
@@ -223,40 +231,57 @@ export function EventDialog() {
             </Select>
           </div>
 
-          {!allDay && (
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="start-time">Hora de Início</Label>
-                <Select value={startTime} onValueChange={setStartTime}>
-                  <SelectTrigger id="start-time" className="w-full">
-                    <SelectValue placeholder="Select time" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {generateTimeOptions().map((option) => (
-                      <SelectItem key={option.value} value={option.value}>
-                        {option.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <Label htmlFor="end-time">Hora do Fim</Label>
-                <Select value={endTime} onValueChange={setEndTime}>
-                  <SelectTrigger id="end-time" className="w-full">
-                    <SelectValue placeholder="Select time" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {generateTimeOptions().map((option) => (
-                      <SelectItem key={option.value} value={option.value}>
-                        {option.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="flex flex-col gap-2">
+              <DatePicker
+                label="Data de Início"
+                date={startDate}
+                onChange={(date) => setStartDate(date)}
+              />
+              {!allDay && (
+                <>
+                  <Label htmlFor="start-time">Hora de Início</Label>
+                  <Select value={startTime} onValueChange={setStartTime}>
+                    <SelectTrigger id="start-time" className="w-full">
+                      <SelectValue placeholder="Hora de Início" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {generateTimeOptions().map((option) => (
+                        <SelectItem key={option.value} value={option.value}>
+                          {option.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </>
+              )}
             </div>
-          )}
+
+            <div className="flex flex-col gap-2">
+              <DatePicker
+                label="Data de Término"
+                date={endDate}
+                onChange={(date) => setEndDate(date)}
+              />
+              {!allDay && (
+                <>
+                  <Label htmlFor="end-time">Hora de Término</Label>
+                  <Select value={endTime} onValueChange={setEndTime}>
+                    <SelectTrigger id="end-time" className="w-full">
+                      <SelectValue placeholder="Hora de Término" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {generateTimeOptions().map((option) => (
+                        <SelectItem key={option.value} value={option.value}>
+                          {option.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </>
+              )}
+            </div>
+          </div>
 
           <div className="flex items-center gap-2">
             <Checkbox

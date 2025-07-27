@@ -1,13 +1,14 @@
 'use client';
-
-import { useState, useMemo } from 'react';
+import { useMemo } from 'react';
 import { addDays, parseISO } from 'date-fns';
 import { EventCalendar } from './event-calendar';
 import { CalendarEvent } from './types';
-import { TaskType, useTasks } from '@/hooks/data/useTasksQuery';
-import { Task } from '@/hooks/data/useTasksQuery';
+import { useFilteredTasks } from '@/hooks/data/useTasksQuery';
+import { Task } from '@/types/Task';
 import { useCalendarStore } from '@/stores/useCalendarStore';
+import { useTaskStore } from '@/stores/useTaskStore';
 import { WeekSelector } from './WeekSelector';
+import { TaskType } from '@/types/Task';
 
 const getTaskTypeColor = (taskType: TaskType): CalendarEvent['color'] => {
   switch (taskType) {
@@ -31,7 +32,6 @@ const taskToCalendarEvent = (task: Task): CalendarEvent => {
   }
 
   const isAllDay = task.dueDate ? !task.dueDate.includes('T') : true;
-
   const start = startDate;
   const end = isAllDay ? startDate : addDays(start, 0);
 
@@ -44,7 +44,6 @@ const taskToCalendarEvent = (task: Task): CalendarEvent => {
     allDay: isAllDay,
     color: getTaskTypeColor(task.type),
     location: task.projectId ? `Projeto: ${task.projectId}` : undefined,
-
     type: task.type,
     status: task.status,
     priority: task.priority,
@@ -52,40 +51,25 @@ const taskToCalendarEvent = (task: Task): CalendarEvent => {
 };
 
 export default function TaskCalendar() {
-  const { data: tasks, isLoading, isError, error, refetch } = useTasks();
+  const { filters } = useTaskStore();
+
+  const { data: filteredTasks, isLoading, isError, error, refetch } = useFilteredTasks(filters);
+
   const { calendarView } = useCalendarStore();
 
-  const calendarEvents = useMemo(() => {
-    if (!tasks) return [];
-    return tasks.map(taskToCalendarEvent);
-  }, [tasks]);
-
-  const [events, setEvents] = useState<CalendarEvent[]>([]);
-
-  useMemo(() => {
-    setEvents(calendarEvents);
-  }, [calendarEvents]);
-
-  const handleEventAdd = (event: CalendarEvent) => {
-    setEvents([...events, event]);
-    console.log('Nova task a ser criada:', event);
-  };
-
-  const handleEventUpdate = (updatedEvent: CalendarEvent) => {
-    setEvents(events.map((event) => (event.id === updatedEvent.id ? updatedEvent : event)));
-    console.log('Task a ser atualizada:', updatedEvent);
-  };
-
-  const handleEventDelete = (eventId: string) => {
-    setEvents(events.filter((event) => event.id !== eventId));
-    console.log('Task a ser excluída:', eventId);
-  };
+  const events = useMemo(() => {
+    if (!filteredTasks) return [];
+    return filteredTasks.map(taskToCalendarEvent);
+  }, [filteredTasks]);
 
   if (isLoading) {
     return (
       <div className="max-w-7xl mx-auto mt-10 p-4">
         <h1 className="text-2xl font-bold mb-4">Calendário de Tarefas</h1>
-        <p>Carregando tarefas...</p>
+        <div className="flex items-center justify-center h-32">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+          <span className="ml-2">Carregando tarefas...</span>
+        </div>
       </div>
     );
   }
@@ -94,31 +78,29 @@ export default function TaskCalendar() {
     return (
       <div className="max-w-7xl mx-auto p-4">
         <h1 className="text-2xl font-bold mb-4">Calendário de Tarefas</h1>
-        <p className="text-red-500">Erro ao carregar tarefas: {String(error)}</p>
-        <button
-          onClick={() => refetch()}
-          className="mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-        >
-          Tentar novamente
-        </button>
+        <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-4">
+          <p className="text-destructive font-medium">Erro ao carregar tarefas</p>
+          <p className="text-destructive/80 text-sm mt-1">{String(error)}</p>
+          <button
+            onClick={() => refetch()}
+            className="mt-3 px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors"
+          >
+            Tentar novamente
+          </button>
+        </div>
       </div>
     );
   }
 
   return (
     <div className="w-full mt-2">
-      {calendarView === 'semana' || calendarView === 'dia' ? (
+      {(calendarView === 'semana' || calendarView === 'dia') && (
         <div className="max-w-7xl mx-auto px-4 mb-4">
           <WeekSelector />
         </div>
-      ) : null}
+      )}
 
-      <EventCalendar
-        events={events}
-        onEventAdd={handleEventAdd}
-        onEventUpdate={handleEventUpdate}
-        onEventDelete={handleEventDelete}
-      />
+      <EventCalendar events={events} />
     </div>
   );
 }

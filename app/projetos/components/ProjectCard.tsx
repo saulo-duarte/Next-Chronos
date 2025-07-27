@@ -5,7 +5,8 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Project } from '@/hooks/data/useProjectQuery';
 import { ProjectCardMenu } from './ProjectCardMenu';
-import { CheckCircle, Clock, Play } from 'lucide-react';
+import { Calendar, CheckCircle, Clock, Play } from 'lucide-react';
+import { Separator } from '@/components/ui/separator';
 
 export const statusConfig = {
   NOT_INITIALIZED: {
@@ -44,7 +45,6 @@ export function ProjectCard({ project, onDelete, onStatusChange }: ProjectCardPr
       onClick={() => router.push(`/projetos/${project.id}`)}
       className="group hover:shadow-lg transition-all duration-200 border-border/50 hover:border-border text-sm sm:text-base p-3 sm:p-5 cursor-pointer flex flex-col justify-between h-full my-4 gap-0"
     >
-      {/* Título e menu */}
       <CardHeader className="p-0">
         <div className="flex items-start justify-between">
           <CardTitle className="text-base sm:text-lg font-semibold truncate">
@@ -68,8 +68,11 @@ export function ProjectCard({ project, onDelete, onStatusChange }: ProjectCardPr
         </CardContent>
       )}
 
-      <CardContent className="p-0 flex justify-between items-end -mt-4">
-        <div className="text-[10px] sm:text-xs text-muted-foreground">
+      <Separator className="-mt-6 mb-1 bg-primary/20" />
+
+      <CardContent className="p-0 flex justify-between items-end">
+        <div className="flex items-center gap-1 text-[10px] sm:text-xs text-foreground">
+          <Calendar className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary" />
           Criado em{' '}
           {new Date(project.created_at).toLocaleDateString('pt-BR', {
             day: '2-digit',
@@ -78,9 +81,10 @@ export function ProjectCard({ project, onDelete, onStatusChange }: ProjectCardPr
           })}
         </div>
 
-        <div className="flex items-center gap-2">
-          <StatusIcon className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${statusInfo.color}`} />
+        <div className="flex items-center gap-2 text-foreground text-xs font-medium">
+          Status
           <Badge variant={statusInfo.variant} className="text-[10px] sm:text-xs">
+            <StatusIcon className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${statusInfo.color}`} />
             {statusInfo.label}
           </Badge>
         </div>
