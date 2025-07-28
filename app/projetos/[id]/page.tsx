@@ -15,6 +15,7 @@ import { EventDialog } from '@/components/event-dialog';
 import { useParams } from 'next/navigation';
 import { useTaskStore } from '@/stores/useTaskStore';
 import { useFilteredProjectTasks } from '@/hooks/data/useProjectsTasks';
+import { useProjectStore } from '@/stores/useProjectStore';
 
 export default function TasksPage() {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -23,6 +24,7 @@ export default function TasksPage() {
   const setModalOpen = useTaskStore((state) => state.setModalOpen);
   const filters = useTaskStore((state) => state.filters);
   const { tasks = [] } = useFilteredProjectTasks(projectId, filters);
+  const { selectedProjectTitle } = useProjectStore();
 
   const tasksByStatus = useMemo(() => {
     const group = {
@@ -47,7 +49,7 @@ export default function TasksPage() {
           <Button variant="ghost" size="icon" onClick={() => (window.location.href = '/projetos')}>
             <ArrowLeft className="w-5 h-5" />
           </Button>
-          <h1 className="text-2xl font-semibold">EstiMate</h1>
+          <h1 className="text-2xl font-semibold">{selectedProjectTitle}</h1>
         </div>
 
         <Tabs defaultValue="tasks" className="w-full">
