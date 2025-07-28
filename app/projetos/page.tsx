@@ -12,7 +12,7 @@ import { Plus, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { NewProjectDialog } from './components/NewProjectDialog';
+import { ProjectFormDialog } from './components/ProjectDialog';
 import { useProjectStore } from '@/stores/useProjectStore';
 import { ProjectCard } from './components/ProjectCard';
 import { FloatingNewProjectButton } from './components/FloatingNewProjectButton';
@@ -111,7 +111,7 @@ export default function ProjectsPage() {
             <h1 className="text-3xl font-bold tracking-tight">Projetos</h1>
             <p className="text-muted-foreground">Gerencie todos os seus projetos em um só lugar</p>
           </div>
-          <NewProjectDialog />
+          <ProjectFormDialog />
         </div>
 
         <div className="flex flex-col sm:flex-row gap-4">
