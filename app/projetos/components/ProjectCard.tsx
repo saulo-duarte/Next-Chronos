@@ -7,6 +7,7 @@ import { Project } from '@/hooks/data/useProjectQuery';
 import { ProjectCardMenu } from './ProjectCardMenu';
 import { Calendar, CheckCircle, Clock, Play } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
+import { useProjectStore } from '@/stores/useProjectStore';
 
 export const statusConfig = {
   NOT_INITIALIZED: {
@@ -39,10 +40,16 @@ export function ProjectCard({ project, onDelete, onStatusChange }: ProjectCardPr
   const router = useRouter();
   const statusInfo = statusConfig[project.status];
   const StatusIcon = statusInfo.icon;
+  const setSelectedProjectTitle = useProjectStore((state) => state.setSelectedProjectTitle);
+
+  const handleCardClick = () => {
+    setSelectedProjectTitle(project.title);
+    router.push(`/projetos/${project.id}`);
+  };
 
   return (
     <Card
-      onClick={() => router.push(`/projetos/${project.id}`)}
+      onClick={handleCardClick}
       className="group hover:shadow-lg transition-all duration-200 border-border/50 hover:border-border text-sm sm:text-base p-3 sm:p-5 cursor-pointer flex flex-col justify-between h-full my-4 gap-0"
     >
       <CardHeader className="p-0">
@@ -51,12 +58,7 @@ export function ProjectCard({ project, onDelete, onStatusChange }: ProjectCardPr
             {project.title}
           </CardTitle>
 
-          <ProjectCardMenu
-            projectId={project.id}
-            currentStatus={project.status}
-            onDelete={onDelete}
-            onStatusChange={onStatusChange}
-          />
+          <ProjectCardMenu project={project} onDelete={onDelete} onStatusChange={onStatusChange} />
         </div>
       </CardHeader>
 
