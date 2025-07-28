@@ -67,19 +67,6 @@ export function TaskList({ todoTasks, inProgressTasks, completedTasks }: TaskLis
         </motion.div>
       )}
 
-      {inProgressTasks.length > 0 && (
-        <motion.div className="mb-6" variants={itemVariants}>
-          <h2 className="text-lg font-semibold mb-3 text-slate-300">
-            Em Progresso <span className="text-sm text-slate-500">{inProgressTasks.length}</span>
-          </h2>
-          <AnimatePresence>
-            {inProgressTasks.map((task) => (
-              <TaskCard key={task.id} task={task} />
-            ))}
-          </AnimatePresence>
-        </motion.div>
-      )}
-
       {completedTasks.length > 0 && (
         <motion.div className="mb-6" variants={itemVariants}>
           <h2 className="text-lg font-semibold mb-3 text-slate-300">

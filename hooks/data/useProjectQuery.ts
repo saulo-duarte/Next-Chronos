@@ -50,14 +50,18 @@ export function useCreateProject() {
 
 export function useUpdateProject() {
   const queryClient = useQueryClient();
+
   return useMutation({
     mutationFn: async ({ id, ...data }: Partial<Project> & { id: string }) => {
       const res = await api.put(`${API_URL}/${id}`, data);
       return res.data;
     },
-    onSuccess: (_data, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['projects'] });
-      queryClient.invalidateQueries({ queryKey: ['projects', variables.id] });
+    onSuccess: (updatedProject) => {
+      queryClient.setQueryData<Project[]>(['projects'], (oldProjects) =>
+        oldProjects?.map((project) => (project.id === updatedProject.id ? updatedProject : project))
+      );
+
+      queryClient.setQueryData<Project>(['projects', updatedProject.id], updatedProject);
     },
   });
 }

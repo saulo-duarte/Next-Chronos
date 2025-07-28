@@ -6,9 +6,7 @@ import { FaBriefcase } from 'react-icons/fa6';
 import { BsCalendar2WeekFill } from 'react-icons/bs';
 import { RiLoader2Line, RiTimeFill } from '@remixicon/react';
 import { FaCheckCircle } from 'react-icons/fa';
-import { Circle, Minus } from 'lucide-react';
-import { HiFlag } from 'react-icons/hi';
-import { TiWarning } from 'react-icons/ti';
+import { Circle, Flag, Minus, TriangleAlert } from 'lucide-react';
 import clsx from 'clsx';
 import { TaskType, TaskStatus, TaskPriority } from '@/types/Task';
 
@@ -175,30 +173,34 @@ export function getTaskTypeIcon(
   };
 }
 
-export function getStatusBadge(status?: TaskStatus): { icon: JSX.Element; className: string } {
+export function getStatusBadge(status?: TaskStatus): {
+  icon: JSX.Element;
+  className: string;
+} {
   switch (status) {
     case 'TODO':
       return {
-        icon: <RiTimeFill className="w-3 h-3 sm:w-3 sm:h-3" />,
+        icon: <RiTimeFill className="w-3 h-3" />,
         className:
-          'bg-gray-200 text-gray-800 dark:bg-gray-900 dark:text-gray-300 text-[9px] sm:text-[10px] px-1 py-0.5 sm:px-1.5',
+          'bg-blue-950 text-blue-200 border border-black/20 text-[9px] sm:text-[10px] px-2 py-0.5 sm:px-1.5 rounded-lg',
       };
     case 'IN_PROGRESS':
       return {
-        icon: <RiLoader2Line className="w-3 h-3 animate-spin-slow sm:w-3 sm:h-3" />,
+        icon: <RiLoader2Line className="w-3 h-3 animate-spin-slow" />,
         className:
-          'bg-blue-200 text-blue-800 dark:bg-blue-900 dark:text-blue-300 text-[9px] sm:text-[10px] px-1 py-0.5 sm:px-1.5',
+          'bg-blue-200 text-blue-800 border border-blue-400 dark:bg-blue-900 dark:text-blue-300 dark:border-blue-600 text-[9px] sm:text-[10px] px-2 py-0.5 sm:px-1.5 rounded-lg',
       };
     case 'DONE':
       return {
-        icon: <FaCheckCircle className="w-3 h-3 sm:w-3 sm:h-3" />,
+        icon: <FaCheckCircle className="w-3 h-3" />,
         className:
-          'bg-emerald-200 text-green-800 dark:bg-green-900 dark:text-green-300 text-[9px] sm:text-[10px] px-1 py-0.5 sm:px-1.5',
+          'bg-emerald-200 text-green-800 border border-emerald-400 dark:bg-green-900 dark:text-green-300 dark:border-green-600 text-[9px] sm:text-[10px] px-2 py-0.5 sm:px-1.5 rounded-lg',
       };
     default:
       return {
-        icon: <Circle className="w-3 h-3 sm:w-3 sm:h-3" />,
-        className: 'bg-muted text-muted-foreground text-[9px] sm:text-[10px] px-1 py-0.5 sm:px-1.5',
+        icon: <Circle className="w-3 h-3" />,
+        className:
+          'bg-muted text-muted-foreground border border-muted-foreground/30 text-[9px] sm:text-[10px] px-2 py-0.5 sm:px-1.5 rounded-lg',
       };
   }
 }
@@ -210,26 +212,27 @@ export function getPriorityBadge(priority?: TaskPriority): {
   switch (priority) {
     case 'LOW':
       return {
-        icon: <HiFlag className="w-3 h-3" />,
+        icon: <Flag className="w-3 h-3" />,
         className:
-          'bg-emerald-200 text-green-800 dark:bg-green-900 dark:text-green-300 text-[9px] sm:text-[10px] px-1 py-0.5 sm:px-1.5',
+          'bg-emerald-200 text-green-800 border border-emerald-600 text-[9px] sm:text-[10px] px-2 py-0.5 sm:px-1.5 rounded-lg',
       };
     case 'MEDIUM':
       return {
-        icon: <HiFlag className="w-3 h-3" />,
+        icon: <Flag className="w-3 h-3" />,
         className:
-          'bg-yellow-200 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200 text-[9px] sm:text-[10px] px-1 py-0.5 sm:px-1.5',
+          'bg-yellow-200 text-yellow-800 border border-yellow-600 text-[9px] sm:text-[10px] px-2 py-0.5 sm:px-1.5 rounded-lg',
       };
     case 'HIGH':
       return {
-        icon: <TiWarning className="w-3 h-3" />,
+        icon: <TriangleAlert className="w-3 h-3" />,
         className:
-          'bg-red-200 text-red-800 dark:bg-red-900 dark:text-red-300 text-[9px] sm:text-[10px] px-1 py-0.5 sm:px-1.5',
+          'bg-red-300 text-red-800 border border-red-400 text-[9px] sm:text-[10px] px-2 py-0.5 sm:px-1.5 rounded-lg',
       };
     default:
       return {
         icon: <Minus className="w-3 h-3" />,
-        className: 'bg-muted text-muted-foreground',
+        className:
+          'bg-muted text-muted-foreground text-[9px] sm:text-[10px] px-2 py-0.5 sm:px-1.5 rounded-lg',
       };
   }
 }
