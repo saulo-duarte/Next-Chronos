@@ -16,6 +16,8 @@ import {
 import { useUpdateTask } from '@/hooks/data/useTasksQuery';
 import { Checkbox } from './ui/checkbox';
 import { AnimatePresence, motion } from 'framer-motion';
+import { TaskStatus, TaskType } from '@/types/Task';
+import { FaCircleCheck } from 'react-icons/fa6';
 
 const formatTimeWithOptionalMinutes = (date: Date) => {
   return format(date, getMinutes(date) === 0 ? 'ha' : 'h:mma').toLowerCase();
@@ -50,7 +52,6 @@ function EventWrapper({
   onMouseDown,
   onTouchStart,
 }: EventWrapperProps) {
-  // Always use the currentTime (if provided) to determine if the event is in the past
   const displayEnd = currentTime
     ? new Date(
         new Date(currentTime).getTime() +
@@ -64,7 +65,7 @@ function EventWrapper({
     <button
       className={cn(
         'focus-visible:border-ring focus-visible:ring-ring/50 flex size-full overflow-hidden px-1 text-left font-medium backdrop-blur-md transition outline-none select-none focus-visible:ring-[3px] data-dragging:cursor-grabbing data-dragging:shadow-lg data-past-event:line-through sm:px-2',
-        getEventColorClasses(event.color),
+        getEventColorClasses(event.color ?? 'default'),
         getBorderRadiusClasses(isFirstDay, isLastDay),
         className
       )}
@@ -114,8 +115,6 @@ export function EventItem({
   onMouseDown,
   onTouchStart,
 }: EventItemProps) {
-  const eventColor = event.color;
-
   const displayStart = useMemo(() => {
     return currentTime || new Date(event.start);
   }, [currentTime, event.start]);
@@ -222,13 +221,55 @@ export function EventItem({
 
   const updateTask = useUpdateTask();
 
+  function getStatusBadgeByType(type: TaskType, status: TaskStatus) {
+    const map = {
+      PROJECT: ['bg-[#83B7F3]', 'text-[#072059]'],
+      EVENT: ['bg-[#85E889]', 'text-[#07590A]'],
+      STUDY: ['bg-[#D899EF]', 'text-[#440E58]'],
+    } as const;
+
+    const [bg, text] = map[type as keyof typeof map] ?? ['bg-muted', 'text-muted-foreground'];
+
+    return {
+      icon: getStatusBadge(status).icon,
+      className: `${bg} ${text} rounded-lg`,
+    };
+  }
+
+  const isDone = event.status === 'DONE';
+  const statusBadge = getStatusBadgeByType(event.type, event.status ?? 'TODO');
+
+  const typeBorderMap = {
+    PROJECT: 'border-[#072059]',
+    EVENT: 'border-[#07590A]',
+    STUDY: 'border-[#440E58]',
+  } as const;
+
+  const checkboxBorderColor = isDone
+    ? ''
+    : (typeBorderMap[event.type as keyof typeof typeBorderMap] ?? 'border-gray-400');
+
+  const handleStatusToggle = async () => {
+    const optimisticStatus: TaskStatus = isDone ? 'TODO' : 'DONE';
+    const previousStatus: TaskStatus = event.status ?? 'TODO';
+
+    updateTask.mutate(
+      { id: event.id, status: optimisticStatus },
+      {
+        onError: () => {
+          updateTask.mutate({ id: event.id, status: previousStatus });
+        },
+      }
+    );
+  };
+
   return (
     <div
       role="button"
       tabIndex={0}
       className={cn(
         'relative flex w-full flex-row items-stretch gap-2 rounded-md px-2 py-2 text-left transition outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] data-past-event:line-through data-past-event:opacity-90',
-        getEventColorClasses(eventColor),
+        getEventColorClasses(event.color),
         className
       )}
       data-past-event={isPast(new Date(event.end)) || undefined}
@@ -242,12 +283,10 @@ export function EventItem({
 
       <div className="flex flex-col flex-1 gap-1">
         <div className="text-sm font-medium">
-          <span className={event.status === 'DONE' ? 'line-through opacity-70' : ''}>
-            {event.title}
-          </span>
+          <span className={isDone ? 'line-through opacity-70' : ''}>{event.title}</span>
         </div>
 
-        <div className="text-xs opacity-70">
+        <div className="text-xs opacity-70 flex flex-wrap items-center gap-1">
           {event.allDay ? (
             <span>All day</span>
           ) : (
@@ -256,66 +295,14 @@ export function EventItem({
               {formatTimeWithOptionalMinutes(displayEnd)}
             </span>
           )}
-        </div>
-      </div>
 
-      <div className="absolute right-1 top-1 z-10">
-        <AnimatePresence>
-          {event.status === 'DONE' && (
-            <motion.div
-              key="check"
-              initial={{ scale: 0.6, opacity: 0 }}
-              animate={{ scale: 1.2, opacity: 1 }}
-              exit={{ scale: 0.8, opacity: 0 }}
-              transition={{ type: 'spring', stiffness: 300, damping: 15 }}
-              className="absolute right-1 top-1 z-10"
-            >
-              <Checkbox
-                id={`status-${event.id}`}
-                checked={true}
-                onCheckedChange={(checked) => {
-                  const newStatus = checked ? 'DONE' : 'TODO';
-                  updateTask.mutate({ id: event.id, status: newStatus });
-                }}
-                onClick={(e) => e.stopPropagation()}
-                className="border-[1.5px] border-green-800 data-[state=checked]:!bg-transparent data-[state=checked]:text-green-700 data-[state=checked]:border-0 transition-colors"
-              />
-            </motion.div>
-          )}
-
-          {event.status !== 'DONE' && (
-            <motion.div
-              key="uncheck"
-              initial={{ scale: 0.6, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.6, opacity: 0 }}
-              transition={{ type: 'spring', stiffness: 200, damping: 20 }}
-              className="absolute right-1 top-1 z-10"
-            >
-              <Checkbox
-                id={`status-${event.id}`}
-                checked={false}
-                onCheckedChange={(checked) => {
-                  const newStatus = checked ? 'DONE' : 'TODO';
-                  updateTask.mutate({ id: event.id, status: newStatus });
-                }}
-                onClick={(e) => e.stopPropagation()}
-                className="border-[1.5px] border-green-800 data-[state=checked]:!bg-transparent data-[state=checked]:text-green-700 transition-colors"
-              />
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
-
-      {(event.status || event.priority) && (
-        <div className="absolute bottom-1 right-1 flex items-center gap-1">
           {event.priority &&
             (() => {
               const { icon, className } = getPriorityBadge(event.priority);
               return (
                 <span
                   className={cn(
-                    'flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] font-semibold',
+                    'ml-2 flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] font-semibold',
                     className
                   )}
                 >
@@ -327,7 +314,7 @@ export function EventItem({
 
           {event.status &&
             (() => {
-              const { icon, className } = getStatusBadge(event.status);
+              const { icon, className } = statusBadge;
               return (
                 <span
                   className={cn(
@@ -341,7 +328,47 @@ export function EventItem({
               );
             })()}
         </div>
-      )}
+      </div>
+
+      <div className="absolute right-2 top-1/2 -translate-y-1/2 z-10">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={isDone ? 'checked' : 'unchecked'}
+            initial={{ scale: 0.6, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.6, opacity: 0 }}
+            transition={{ type: 'spring', stiffness: 250, damping: 20 }}
+          >
+            {isDone ? (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleStatusToggle();
+                }}
+                className={cn(
+                  'size-8 flex items-center justify-center rounded-full border-[2px] transition-colors',
+                  checkboxBorderColor,
+                  'bg-transparent'
+                )}
+              >
+                <FaCircleCheck size={28} className="text-" />
+              </button>
+            ) : (
+              <Checkbox
+                id={`status-${event.id}`}
+                checked={isDone}
+                onCheckedChange={handleStatusToggle}
+                onClick={(e) => e.stopPropagation()}
+                className={cn(
+                  'size-8 rounded-full border-[2px] transition-colors',
+                  checkboxBorderColor
+                )}
+              />
+            )}
+          </motion.div>
+        </AnimatePresence>
+      </div>
     </div>
   );
 }

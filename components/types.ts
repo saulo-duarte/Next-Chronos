@@ -12,7 +12,7 @@ export interface CalendarEvent {
   color?: EventColor;
   location?: string;
 
-  type?: TaskType;
+  type: TaskType;
   status?: TaskStatus;
   priority?: TaskPriority;
 }

@@ -2,12 +2,15 @@
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Calendar, Flag } from 'lucide-react';
+import { Calendar } from 'lucide-react';
 import { FaCheckCircle } from 'react-icons/fa';
 import { Badge } from '@/components/ui/badge';
 import { Task } from '@/types/Task';
 import { useUpdateTask } from '@/hooks/data/useTasksQuery';
 import { useTaskStore } from '@/stores/useTaskStore';
+import { cn } from '@/lib/utils';
+import { FaArrowDown } from 'react-icons/fa6';
+import { IoFlagSharp, IoWarning } from 'react-icons/io5';
 
 interface TaskCardProps {
   task: Task;
@@ -91,7 +94,14 @@ export function TaskCard({ task }: TaskCardProps) {
           transition={{ duration: 0.5 }}
         >
           <motion.h3 className="text-md font-semibold mb-1 relative overflow-hidden">
-            <span className="inline-block relative z-10">{task.name}</span>
+            <span
+              className={cn(
+                'inline-block relative z-10 transition-all duration-300',
+                (isDone || willBeDone) && 'line-through opacity-70'
+              )}
+            >
+              {task.name}
+            </span>
 
             {willBeDone && (
               <motion.span
@@ -114,8 +124,8 @@ export function TaskCard({ task }: TaskCardProps) {
           <div className="flex items-center gap-2 text-xs font-medium">
             <Calendar className="w-4 h-4" />
             <span className="text-xs">{formatDate(task.dueDate)}</span>
-            <Badge className={`text-xs ${getPriorityColor(task.priority)}`}>
-              <Flag className="w-3 h-3 mr-1" />
+            <Badge className="bg-transparent">
+              {getPriorityIcon(task.priority)}
               {getPriorityLabel(task.priority)}
             </Badge>
           </div>
@@ -172,16 +182,16 @@ function getStatusColor(status: Task['status']) {
   }
 }
 
-function getPriorityColor(priority: Task['priority']) {
+function getPriorityIcon(priority: Task['priority']) {
   switch (priority) {
     case 'HIGH':
-      return 'bg-red-500 text-white';
+      return <IoWarning className="w-3 h-3" />;
     case 'MEDIUM':
-      return 'bg-yellow-500 text-black';
+      return <IoFlagSharp className="w-3 h-3" />;
     case 'LOW':
-      return 'bg-green-500 text-white';
+      return <FaArrowDown className="w-3 h-3" />;
     default:
-      return 'bg-slate-500 text-white';
+      return null;
   }
 }
 

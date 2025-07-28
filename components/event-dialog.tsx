@@ -5,7 +5,7 @@ import { RiDeleteBinLine } from '@remixicon/react';
 
 import { useTaskStore } from '@/stores/useTaskStore';
 import { useCreateTask, useDeleteTask, useTask, useUpdateTask } from '@/hooks/data/useTasksQuery';
-import { TaskPayload, UpdateTaskPayload, TaskPriority } from '@/types/Task';
+import { TaskPayload, UpdateTaskPayload, TaskPriority, TaskStatus } from '@/types/Task';
 import { DefaultEndHour, DefaultStartHour, EndHour, StartHour } from '@/components/constants';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from './ui/dialog';
 import { Label } from './ui/label';
@@ -39,6 +39,13 @@ export function EventDialog({ isProject = false, projectId }: EventDialogProps) 
   const [allDay, setAllDay] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [priority, setPriority] = useState<TaskPriority>('MEDIUM');
+  const [status, setStatus] = useState<TaskStatus>('TODO');
+
+  const statusOptions = [
+    { value: 'TODO', label: 'A Fazer' },
+    { value: 'IN_PROGRESS', label: 'Em Andamento' },
+    { value: 'DONE', label: 'Concluído' },
+  ] as const;
 
   useEffect(() => {
     if (task) {
@@ -110,7 +117,7 @@ export function EventDialog({ isProject = false, projectId }: EventDialogProps) 
         description,
         startDate: startISO,
         dueDate: endISO,
-        status: task.status,
+        status: status,
         priority,
       };
 
@@ -236,6 +243,22 @@ export function EventDialog({ isProject = false, projectId }: EventDialogProps) 
             </Select>
           </div>
 
+          <div>
+            <Label htmlFor="status">Status</Label>
+            <Select value={status} onValueChange={(value) => setStatus(value as TaskStatus)}>
+              <SelectTrigger id="status" className="w-full">
+                <SelectValue placeholder="Selecione status" />
+              </SelectTrigger>
+              <SelectContent>
+                {statusOptions.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
           <div className="grid grid-cols-2 gap-4">
             <div className="flex flex-col gap-2">
               <DatePicker
@@ -306,10 +329,10 @@ export function EventDialog({ isProject = false, projectId }: EventDialogProps) 
           )}
           <div className="flex gap-2 ">
             <Button variant="outline" onClick={handleClose}>
-              Cancel
+              Cancelar
             </Button>
             <Button onClick={handleSave} disabled={createTask.isPending || updateTask.isPending}>
-              Save
+              Salvar
             </Button>
           </div>
         </DialogFooter>
