@@ -187,7 +187,12 @@ export function EventDialog({ isProject = false, projectId }: EventDialogProps) 
 
   return (
     <Dialog open={isModalOpen} onOpenChange={(open) => !open && handleClose()}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent
+        className="sm:max-w-[425px]"
+        onInteractOutside={(event) => {
+          event.preventDefault();
+        }}
+      >
         <DialogHeader>
           <DialogTitle>{task?.id ? 'Edit Task' : 'Adicionar Evento'}</DialogTitle>
         </DialogHeader>

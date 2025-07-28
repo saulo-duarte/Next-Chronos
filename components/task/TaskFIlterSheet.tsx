@@ -43,7 +43,13 @@ export function FilterSheet({ open, onOpenChange }: FilterSheetProps) {
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="bottom" className="py-2 px-4">
+      <SheetContent
+        side="bottom"
+        className="py-2 px-4"
+        onInteractOutside={(event) => {
+          event.preventDefault();
+        }}
+      >
         <SheetHeader>
           <SheetTitle className="text-white">Filtros</SheetTitle>
         </SheetHeader>
