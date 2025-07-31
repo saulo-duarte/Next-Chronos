@@ -13,7 +13,7 @@ function PageHeader() {
     <>
       <header className="w-full bg-background backdrop-blur-md shadow-sm py-2">
         <div className="h-16 flex items-center justify-center">
-          <Image src="/icons/Logo Chronos.png" alt="Logo" width={32} height={32} />
+          <Image src="/icons/Logo Chronos.png" alt="Logo" width={48} height={48} />
         </div>
         <nav className="flex">
           {['Atividades', 'Estatísticas'].map((tab) => (
