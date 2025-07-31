@@ -3,11 +3,13 @@ import { TaskFilters, TaskPriority, TaskStatus, TaskType } from '@/types/Task';
 
 interface TaskUIState {
   selectedTaskId: string | null;
+  selectedTopicId: string | null;
   isModalOpen: boolean;
 
   filters: TaskFilters;
 
   setSelectedTask: (id: string | null) => void;
+  setSelectedTopicId: (id: string | null) => void;
   setModalOpen: (open: boolean) => void;
 
   setStatusFilter: (status: TaskStatus | TaskStatus[] | undefined) => void;
@@ -24,10 +26,12 @@ interface TaskUIState {
 
 export const useTaskStore = create<TaskUIState>((set, get) => ({
   selectedTaskId: null,
+  selectedTopicId: null,
   isModalOpen: false,
   filters: {},
 
   setSelectedTask: (id) => set({ selectedTaskId: id }),
+  setSelectedTopicId: (id) => set({ selectedTopicId: id }),
   setModalOpen: (open) => set({ isModalOpen: open }),
 
   setStatusFilter: (status) =>

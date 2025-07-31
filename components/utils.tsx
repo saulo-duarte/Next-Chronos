@@ -1,7 +1,7 @@
 import { isSameDay } from 'date-fns';
 import { CalendarEvent, EventColor } from './types';
 import { JSX } from 'react';
-import { FaBookmark } from 'react-icons/fa6';
+import { FaBookBookmark } from 'react-icons/fa6';
 import { FaBriefcase } from 'react-icons/fa6';
 import { BsCalendar2WeekFill } from 'react-icons/bs';
 import { RiLoader2Line, RiTimeFill } from '@remixicon/react';
@@ -154,7 +154,7 @@ export function getTaskTypeIcon(
       textClass = 'text-[#83B7F3]';
       break;
     case 'STUDY':
-      icon = <FaBookmark className={className ?? defaultIconClass} />;
+      icon = <FaBookBookmark className={className ?? defaultIconClass} />;
       bgClass = 'bg-[#440E58]';
       textClass = 'text-[#D899EF]';
       break;

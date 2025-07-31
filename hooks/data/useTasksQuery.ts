@@ -42,11 +42,35 @@ export function useTask(id: string) {
   });
 }
 
+export function useTasksByTopic(topicId: string) {
+  return useQuery<Task[]>({
+    queryKey: ['topicTasks', topicId],
+    queryFn: async () => {
+      const res = await api.get(`/study-topics/${topicId}/tasks`);
+      console.log('response from useTasksByTopic:', res);
+      return res.data;
+    },
+    enabled: !!topicId,
+  });
+}
+
+export function useTasksByProject(projectId: string) {
+  return useQuery<Task[]>({
+    queryKey: ['projectTasks', projectId],
+    queryFn: async () => {
+      const res = await api.get(`/projects/${projectId}/tasks`);
+      return res.data;
+    },
+    enabled: !!projectId,
+  });
+}
+
 export function useCreateTask() {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async (data: Omit<TaskPayload, 'id' | 'createdAt' | 'updatedAt'>) => {
+      console.log('Creating task with data:', data);
       const res = await api.post(API_URL, data);
       return res.data;
     },
@@ -54,9 +78,11 @@ export function useCreateTask() {
       queryClient.invalidateQueries({ queryKey: ['tasks'] });
 
       if (createdTask.projectId) {
-        queryClient.invalidateQueries({
-          queryKey: ['projectTasks', createdTask.projectId],
-        });
+        queryClient.invalidateQueries({ queryKey: ['projectTasks', createdTask.projectId] });
+      }
+
+      if (createdTask.studyTopicId) {
+        queryClient.invalidateQueries({ queryKey: ['topicTasks', createdTask.studyTopicId] });
       }
     },
   });
@@ -77,6 +103,10 @@ export function useUpdateTask() {
       if (updatedTask.projectId) {
         queryClient.invalidateQueries({ queryKey: ['projectTasks', updatedTask.projectId] });
       }
+
+      if (updatedTask.studyTopicId) {
+        queryClient.invalidateQueries({ queryKey: ['topicTasks', updatedTask.studyTopicId] });
+      }
     },
   });
 }
@@ -84,6 +114,7 @@ export function useUpdateTask() {
 type DeleteTaskPayload = {
   id: string;
   projectId?: string;
+  studyTopicId?: string;
 };
 
 export function useDeleteTask() {
@@ -95,8 +126,14 @@ export function useDeleteTask() {
     },
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: ['tasks'] });
-      if (variables?.projectId) {
+      queryClient.invalidateQueries({ queryKey: ['tasks', variables.id] });
+
+      if (variables.projectId) {
         queryClient.invalidateQueries({ queryKey: ['projectTasks', variables.projectId] });
+      }
+
+      if (variables.studyTopicId) {
+        queryClient.invalidateQueries({ queryKey: ['topicTasks', variables.studyTopicId] });
       }
     },
   });

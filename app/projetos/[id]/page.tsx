@@ -111,7 +111,7 @@ export default function TasksPage() {
         </motion.div>
       </div>
 
-      {projectId && <EventDialog isProject={true} projectId={projectId} />}
+      {projectId && <EventDialog taskType="PROJECT" projectId={projectId} />}
       <FilterSheet open={isFilterOpen} onOpenChange={setIsFilterOpen} />
       <MobileBottomNav />
     </div>
