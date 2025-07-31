@@ -26,6 +26,7 @@ export interface TaskPayload {
   dueDate?: string;
   startDate?: string;
   projectId?: string;
+  studyTopicId?: string;
 }
 
 export interface UpdateTaskPayload {
