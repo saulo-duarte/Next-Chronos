@@ -93,7 +93,7 @@ export default function TaskCalendar() {
   }
 
   return (
-    <div className="w-full mt-2">
+    <div className="w-full mt-2 px-2">
       {(calendarView === 'semana' || calendarView === 'dia') && (
         <div className="max-w-7xl mx-auto px-4 mb-4">
           <WeekSelector />
