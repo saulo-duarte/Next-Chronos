@@ -16,7 +16,7 @@ interface StudyCardProps {
 
 export function StudyCard({ task }: StudyCardProps) {
   const [isCompleting, setIsCompleting] = useState(false);
-  const { setSelectedTask, setModalOpen } = useTaskStore();
+  const { setSelectedTask, setEditingTask, setEditDrawerOpen } = useTaskStore();
   const updateTask = useUpdateTask();
 
   const isDone = task.status === 'DONE';
@@ -48,12 +48,13 @@ export function StudyCard({ task }: StudyCardProps) {
   };
 
   const handleCardClick = () => {
-    setSelectedTask(task.id);
-    setModalOpen(true);
+    setSelectedTask(task);
+    setEditingTask(task.id);
+    setEditDrawerOpen(true);
   };
 
   const formatHour = (dateString?: string) => {
-    if (!dateString) return '-';
+    if (!dateString) return 'Aberto';
     const date = new Date(dateString);
     return date.toLocaleTimeString('pt-BR', {
       hour: '2-digit',
@@ -62,7 +63,7 @@ export function StudyCard({ task }: StudyCardProps) {
   };
 
   const formatDate = (dateString?: string) => {
-    if (!dateString) return '-';
+    if (!dateString) return '';
     const date = new Date(dateString);
     return date.toLocaleDateString('pt-BR', {
       day: '2-digit',
@@ -121,13 +122,22 @@ export function StudyCard({ task }: StudyCardProps) {
             <div className="flex items-center gap-1">
               <Clock className="w-3 h-3" />
               <span>
-                {formatHour(task.startDate)} - {formatHour(task.dueDate)}
+                {task.startDate && task.dueDate
+                  ? `${formatHour(task.startDate)} - ${formatHour(task.dueDate)}`
+                  : task.startDate
+                    ? formatHour(task.startDate)
+                    : task.dueDate
+                      ? formatHour(task.dueDate)
+                      : 'Aberto'}
               </span>
             </div>
-            <div className="flex items-center gap-1">
-              <Calendar className="w-3 h-3" />
-              <span>{task.dueDate ? formatDate(task.dueDate) : '-'}</span>
-            </div>
+
+            {task.dueDate && (
+              <div className="flex items-center gap-1">
+                <Calendar className="w-3 h-3" />
+                <span>{formatDate(task.dueDate)}</span>
+              </div>
+            )}
           </div>
 
           <div className="flex items-center gap-2">

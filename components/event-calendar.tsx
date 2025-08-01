@@ -33,11 +33,6 @@ export function EventCalendar({ events = [], className }: EventCalendarProps) {
   const { handleNext, handlePrevious } = useCalendarNavigation(view, currentDate, setCurrentDate);
   const viewTitle = useViewTitle(view, currentDate);
 
-  const handleEventSelect = (event: CalendarEvent) => {
-    setSelectedTask(event.id);
-    setModalOpen(true);
-  };
-
   const handleEventCreate = (startTime: Date) => {
     roundToNearest15(startTime);
     setSelectedTask(null);
@@ -45,7 +40,7 @@ export function EventCalendar({ events = [], className }: EventCalendarProps) {
   };
 
   const handleEventUpdateInternal = (updatedEvent: CalendarEvent) => {
-    toast(`Evento "${updatedEvent.title}" movido`, {
+    toast(`Evento "${updatedEvent.name}" movido`, {
       description: format(new Date(updatedEvent.start), 'MMM d, yyyy'),
       position: 'bottom-left',
     });
@@ -81,31 +76,13 @@ export function EventCalendar({ events = [], className }: EventCalendarProps) {
             <MonthView
               currentDate={currentDate}
               events={events}
-              onEventSelect={handleEventSelect}
               onEventCreate={handleEventCreate}
             />
           )}
-          {view === 'semana' && (
-            <WeekView
-              events={events}
-              onEventSelect={handleEventSelect}
-              onEventCreate={handleEventCreate}
-            />
-          )}
-          {view === 'dia' && (
-            <DayView
-              events={events}
-              onEventSelect={handleEventSelect}
-              onEventCreate={handleEventCreate}
-            />
-          )}
-          {view === 'agenda' && (
-            <AgendaView
-              currentDate={currentDate}
-              events={events}
-              onEventSelect={handleEventSelect}
-            />
-          )}
+          {view === 'semana' && <WeekView events={events} onEventCreate={handleEventCreate} />}
+          {view === 'dia' && <DayView events={events} onEventCreate={handleEventCreate} />}
+          {view === 'agenda' && <AgendaView events={events} />}
+          {view === 'Lista do dia' && <AgendaView events={events} onlyToday={true} />}
         </div>
 
         <EventDialog />

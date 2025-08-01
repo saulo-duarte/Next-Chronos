@@ -69,8 +69,8 @@ export function EventDialog({ taskType = 'EVENT', projectId, topicId }: EventDia
   const resetForm = () => {
     setTitle('');
     setDescription('');
-    setStartDate(new Date());
-    setEndDate(new Date());
+    setStartDate(undefined);
+    setEndDate(undefined);
     setStartTime(`${DefaultStartHour}:00`);
     setEndTime(`${DefaultEndHour}:00`);
     setAllDay(false);
@@ -100,8 +100,8 @@ export function EventDialog({ taskType = 'EVENT', projectId, topicId }: EventDia
       return;
     }
 
-    const start = startDate ? new Date(startDate) : undefined;
-    const end = endDate ? new Date(endDate) : undefined;
+    let start: Date | undefined = startDate;
+    let end: Date | undefined = endDate;
 
     if (start && end && !allDay) {
       const [startHour, startMinute] = startTime.split(':').map(Number);
@@ -113,7 +113,7 @@ export function EventDialog({ taskType = 'EVENT', projectId, topicId }: EventDia
     const payloadCommon = {
       name: title.trim() || '(no title)',
       description,
-      startDate: start ? toLocalISOString(start) : undefined,
+      startDate: allDay ? undefined : start ? toLocalISOString(start) : undefined,
       dueDate: allDay ? undefined : end ? toLocalISOString(end) : undefined,
       status,
       priority,

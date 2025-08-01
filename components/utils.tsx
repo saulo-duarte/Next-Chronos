@@ -116,8 +116,18 @@ export function getAllEventsForDay(events: CalendarEvent[], day: Date): Calendar
 export function getAgendaEventsForDay(events: CalendarEvent[], day: Date): CalendarEvent[] {
   return events
     .filter((event) => {
+      if (
+        !event.start ||
+        !event.end ||
+        isNaN(new Date(event.start).getTime()) ||
+        isNaN(new Date(event.end).getTime())
+      ) {
+        return false;
+      }
+
       const eventStart = new Date(event.start);
       const eventEnd = new Date(event.end);
+
       return (
         isSameDay(day, eventStart) ||
         isSameDay(day, eventEnd) ||

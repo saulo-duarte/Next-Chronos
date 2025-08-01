@@ -1,17 +1,16 @@
 'use client';
 
-import { User } from 'lucide-react';
 import { IoHome } from 'react-icons/io5';
 import { useRouter, usePathname } from 'next/navigation';
 import clsx from 'clsx';
 import { FaSuitcase } from 'react-icons/fa';
-import { FaBook } from 'react-icons/fa6';
+import { FaBook, FaFolder } from 'react-icons/fa6';
 
 const navItems = [
   { label: 'Home', icon: IoHome, href: '/home' },
   { label: 'Projetos', icon: FaSuitcase, href: '/projetos' },
   { label: 'Estudos', icon: FaBook, href: '/study' },
-  { label: 'Perfil', icon: User, href: '/profile' },
+  { label: 'Arquivos', icon: FaFolder, href: '/profile' },
 ];
 
 export function MobileBottomNav() {

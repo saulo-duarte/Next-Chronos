@@ -13,6 +13,7 @@ import { StudyTopicModal } from '../components/CreateTopicModal';
 import { EventDialog } from '@/components/event-dialog';
 import { MobileBottomNav } from '@/components/MobileBottomNav';
 import Image from 'next/image';
+import { TaskEditDrawer } from '@/components/task/TaskDrawer';
 
 export default function SubjectPage() {
   const params = useParams();
@@ -28,27 +29,25 @@ export default function SubjectPage() {
 
   return (
     <div className="h-screen flex flex-col bg-background">
-      <div className="sticky top-0 z-40 bg-background px-1 pt-8 pb-4">
-        <div className="flex items-center gap-3 mb-4">
-          <Link href="/study">
-            <Button variant="ghost" size="icon" className="text-white hover:bg-gray-800">
-              <ArrowLeft className="w-5 h-5" />
-            </Button>
-          </Link>
-        </div>
+      <Tabs defaultValue="tasks" className="flex flex-col flex-1">
+        <div className="sticky top-0 z-40 bg-background px-1 pt-8 pb-4">
+          <div className="flex items-center gap-3 mb-4">
+            <Link href="/study">
+              <Button variant="ghost" size="icon" className="text-white hover:bg-gray-800">
+                <ArrowLeft className="w-5 h-5" />
+              </Button>
+            </Link>
+          </div>
 
-        <Tabs defaultValue="tasks" className="w-full">
           <TabsList className="w-full bg-background">
             <TabsTrigger value="tasks">Tasks</TabsTrigger>
             <TabsTrigger value="roadmap">Roadmap</TabsTrigger>
             <TabsTrigger value="flashcards">Flash Cards</TabsTrigger>
             <TabsTrigger value="files">Arquivos</TabsTrigger>
           </TabsList>
-        </Tabs>
-      </div>
+        </div>
 
-      <div className="flex-1 overflow-y-auto px-4 pt-4">
-        <Tabs defaultValue="tasks">
+        <div className="flex-1 overflow-y-auto px-4 pt-4 mb-20">
           <TabsContent value="tasks">
             {isTopicsLoading && <div className="text-slate-400">Carregando tópicos...</div>}
             {isTopicsError && <div className="text-red-400">Erro ao carregar os tópicos.</div>}
@@ -88,14 +87,14 @@ export default function SubjectPage() {
           <TabsContent value="files">
             <div className="text-center text-slate-400 py-8">Arquivos em desenvolvimento</div>
           </TabsContent>
-        </Tabs>
-      </div>
+        </div>
+      </Tabs>
 
       <FloatingNewStudyTopicButton />
-
       <StudyTopicModal topicCount={topics?.length || 0} />
       <EventDialog taskType="STUDY" />
       <MobileBottomNav />
+      <TaskEditDrawer />
     </div>
   );
 }

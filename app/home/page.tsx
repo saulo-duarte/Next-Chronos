@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { useState } from 'react';
 import clsx from 'clsx';
 import HomeCalendar from '@/components/HomeCalendar';
+import { TaskEditDrawer } from '@/components/task/TaskDrawer';
 
 function PageHeader() {
   const [activeTab, setActiveTab] = useState<'Atividades' | 'Estatísticas'>('Atividades');
@@ -13,7 +14,7 @@ function PageHeader() {
     <>
       <header className="w-full bg-background backdrop-blur-md shadow-sm py-2">
         <div className="h-16 flex items-center justify-center">
-          <Image src="/icons/Logo Chronos.png" alt="Logo" width={48} height={48} />
+          <Image src="/icons/App Logo.png" alt="Logo" width={48} height={48} />
         </div>
         <nav className="flex">
           {['Atividades', 'Estatísticas'].map((tab) => (
@@ -36,7 +37,7 @@ function PageHeader() {
       <div className="space-y-4 mb-20">
         <HomeCalendar />
       </div>
-
+      <TaskEditDrawer />
       <MobileBottomNav />
     </>
   );
