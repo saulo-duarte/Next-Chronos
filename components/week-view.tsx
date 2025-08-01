@@ -29,7 +29,6 @@ import { useCalendarStore } from '@/stores/useCalendarStore';
 
 interface WeekViewProps {
   events: CalendarEvent[];
-  onEventSelect: (event: CalendarEvent) => void;
   onEventCreate: (startTime: Date) => void;
 }
 
@@ -42,7 +41,7 @@ interface PositionedEvent {
   zIndex: number;
 }
 
-export function WeekView({ events, onEventSelect, onEventCreate }: WeekViewProps) {
+export function WeekView({ events, onEventCreate }: WeekViewProps) {
   const { currentWeekStart } = useCalendarStore();
 
   const days = useMemo(() => {
@@ -197,7 +196,6 @@ export function WeekView({ events, onEventSelect, onEventCreate }: WeekViewProps
 
   const handleEventClick = (event: CalendarEvent, e: React.MouseEvent) => {
     e.stopPropagation();
-    onEventSelect(event);
   };
 
   const showAllDaySection = allDayEvents.length > 0;
@@ -264,7 +262,6 @@ export function WeekView({ events, onEventSelect, onEventCreate }: WeekViewProps
                     return (
                       <EventItem
                         key={`spanning-${event.id}`}
-                        onClick={(e) => handleEventClick(event, e)}
                         event={event}
                         view="month"
                         isFirstDay={isFirstDay}
@@ -275,7 +272,7 @@ export function WeekView({ events, onEventSelect, onEventCreate }: WeekViewProps
                           className={cn('truncate', !shouldShowTitle && 'invisible')}
                           aria-hidden={!shouldShowTitle}
                         >
-                          {event.title}
+                          {event.name}
                         </div>
                       </EventItem>
                     );

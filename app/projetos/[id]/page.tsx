@@ -16,6 +16,7 @@ import { useParams } from 'next/navigation';
 import { useTaskStore } from '@/stores/useTaskStore';
 import { useFilteredProjectTasks } from '@/hooks/data/useProjectsTasks';
 import { useProjectStore } from '@/stores/useProjectStore';
+import { TaskEditDrawer } from '@/components/task/TaskDrawer';
 
 export default function TasksPage() {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -114,6 +115,7 @@ export default function TasksPage() {
       {projectId && <EventDialog taskType="PROJECT" projectId={projectId} />}
       <FilterSheet open={isFilterOpen} onOpenChange={setIsFilterOpen} />
       <MobileBottomNav />
+      <TaskEditDrawer />
     </div>
   );
 }

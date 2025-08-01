@@ -17,7 +17,7 @@ interface TaskCardProps {
 }
 
 function formatDate(dateString?: string) {
-  if (!dateString) return '-';
+  if (!dateString) return 'Em aberto';
   const date = new Date(dateString);
   return date.toLocaleDateString('pt-BR', {
     day: '2-digit',
@@ -30,8 +30,7 @@ export function TaskCard({ task }: TaskCardProps) {
   const updateTask = useUpdateTask();
   const [isCompleting, setIsCompleting] = useState(false);
 
-  const setSelectedTask = useTaskStore((state) => state.setSelectedTask);
-  const setModalOpen = useTaskStore((state) => state.setModalOpen);
+  const { setEditDrawerOpen, setSelectedTask, setEditingTask } = useTaskStore();
 
   const isDone = task.status === 'DONE';
   const willBeDone = !isDone && isCompleting;
@@ -62,8 +61,9 @@ export function TaskCard({ task }: TaskCardProps) {
   };
 
   const handleCardClick = () => {
-    setSelectedTask(task.id);
-    setModalOpen(true);
+    setSelectedTask(task);
+    setEditingTask(task.id);
+    setEditDrawerOpen(true);
   };
 
   return (

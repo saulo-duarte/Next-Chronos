@@ -31,7 +31,7 @@ export default function StudySubjectsPage() {
   };
 
   return (
-    <div className="flex flex-col gap-2 mb-4">
+    <div className="min-h-screen flex flex-col gap-2 mb-20">
       <div className="sm:hidden">
         <h1 className="text-2xl font-semibold py-4 px-2">Meus Estudos</h1>
 

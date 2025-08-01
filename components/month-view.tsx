@@ -25,11 +25,10 @@ import { getAllEventsForDay, getEventsForDay, getSpanningEventsForDay, sortEvent
 interface MonthViewProps {
   currentDate: Date;
   events: CalendarEvent[];
-  onEventSelect: (event: CalendarEvent) => void;
   onEventCreate: (startTime: Date) => void;
 }
 
-export function MonthView({ currentDate, events, onEventSelect, onEventCreate }: MonthViewProps) {
+export function MonthView({ currentDate, events, onEventCreate }: MonthViewProps) {
   const days = useMemo(() => {
     const monthStart = startOfMonth(currentDate);
     const monthEnd = endOfMonth(monthStart);
@@ -63,7 +62,6 @@ export function MonthView({ currentDate, events, onEventSelect, onEventCreate }:
 
   const handleEventClick = (event: CalendarEvent, e: React.MouseEvent) => {
     e.stopPropagation();
-    onEventSelect(event);
   };
 
   const [isMounted, setIsMounted] = useState(false);
@@ -146,7 +144,6 @@ export function MonthView({ currentDate, events, onEventSelect, onEventCreate }:
                               aria-hidden={isHidden ? 'true' : undefined}
                             >
                               <EventItem
-                                onClick={(e) => handleEventClick(event, e)}
                                 event={event}
                                 view="month"
                                 isFirstDay={isFirstDay}
@@ -156,7 +153,7 @@ export function MonthView({ currentDate, events, onEventSelect, onEventCreate }:
                                   {!event.allDay && (
                                     <span>{format(new Date(event.start), 'h:mm')} </span>
                                   )}
-                                  {event.title}
+                                  {event.name}
                                 </div>
                               </EventItem>
                             </div>
@@ -213,7 +210,6 @@ export function MonthView({ currentDate, events, onEventSelect, onEventCreate }:
                                   return (
                                     <EventItem
                                       key={event.id}
-                                      onClick={(e) => handleEventClick(event, e)}
                                       event={event}
                                       view="month"
                                       isFirstDay={isFirstDay}

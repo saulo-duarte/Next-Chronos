@@ -1,6 +1,6 @@
 'use client';
 import { useMemo } from 'react';
-import { addDays, parseISO } from 'date-fns';
+import { parseISO } from 'date-fns';
 import { EventCalendar } from './event-calendar';
 import { CalendarEvent } from './types';
 import { useFilteredTasks } from '@/hooks/data/useTasksQuery';
@@ -22,31 +22,16 @@ const getTaskTypeColor = (taskType: TaskType): CalendarEvent['color'] => {
 };
 
 const taskToCalendarEvent = (task: Task): CalendarEvent => {
-  let startDate: Date;
-  if (task.dueDate) {
-    startDate = parseISO(task.dueDate);
-  } else if (task.created_at) {
-    startDate = parseISO(task.created_at);
-  } else {
-    startDate = new Date();
-  }
-
+  const startDate = task.startDate ? parseISO(task.startDate) : new Date();
+  const endDate = task.dueDate ? parseISO(task.dueDate) : startDate;
   const isAllDay = task.dueDate ? !task.dueDate.includes('T') : true;
-  const start = startDate;
-  const end = isAllDay ? startDate : addDays(start, 0);
 
   return {
-    id: task.id,
-    title: task.name,
-    description: task.description || '',
-    start: task.startDate ? parseISO(task.startDate) : start,
-    end: task.dueDate ? parseISO(task.dueDate) : end,
+    ...task,
+    start: startDate,
+    end: endDate,
     allDay: isAllDay,
     color: getTaskTypeColor(task.type),
-    location: task.projectId ? `Projeto: ${task.projectId}` : undefined,
-    type: task.type,
-    status: task.status,
-    priority: task.priority,
   };
 };
 
@@ -94,7 +79,7 @@ export default function TaskCalendar() {
 
   return (
     <div className="w-full mt-2 px-2">
-      {(calendarView === 'semana' || calendarView === 'dia') && (
+      {(calendarView === 'semana' || calendarView === 'dia' || calendarView === 'Lista do dia') && (
         <div className="max-w-7xl mx-auto px-4 mb-4">
           <WeekSelector />
         </div>
