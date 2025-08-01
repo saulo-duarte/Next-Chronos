@@ -15,6 +15,8 @@ export interface Task {
   created_at: string;
   updatedAt: string;
   projectName?: string;
+  projectId?: string;
+  studyTopicId?: string;
   studyTopicName?: string;
 }
 

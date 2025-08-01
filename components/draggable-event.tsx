@@ -116,7 +116,6 @@ export function DraggableEvent({
         isFirstDay={isFirstDay}
         isLastDay={isLastDay}
         isDragging={isDragging}
-        onClick={onClick}
         onMouseDown={handleMouseDown}
         onTouchStart={handleTouchStart}
         dndListeners={listeners}
