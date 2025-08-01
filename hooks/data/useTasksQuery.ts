@@ -18,6 +18,7 @@ export function useTasks() {
 
 export function useFilteredTasks(filters?: TaskFilters) {
   const { data: allTasks, ...queryResult } = useTasks();
+  console.log('All tasks:', allTasks, 'Filters:', filters);
 
   const filteredTasks = useMemo(() => {
     if (!allTasks) return [];

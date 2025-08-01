@@ -14,7 +14,8 @@ export interface Task {
   doneAt?: string;
   created_at: string;
   updatedAt: string;
-  projectId?: string;
+  projectName?: string;
+  studyTopicName?: string;
 }
 
 export interface TaskPayload {

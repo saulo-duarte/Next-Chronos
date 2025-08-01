@@ -1,20 +1,12 @@
-import { TaskType, TaskStatus, TaskPriority } from '@/types/Task';
+import { Task } from '@/types/Task';
 
-export type CalendarView = 'mês' | 'semana' | 'dia' | 'agenda';
+export type CalendarView = 'mês' | 'semana' | 'dia' | 'agenda' | 'Lista do dia';
 
-export interface CalendarEvent {
-  id: string;
-  title: string;
-  description?: string;
+export interface CalendarEvent extends Task {
   start: Date;
   end: Date;
   allDay?: boolean;
   color?: EventColor;
-  location?: string;
-
-  type: TaskType;
-  status?: TaskStatus;
-  priority?: TaskPriority;
 }
 
 export type EventColor = 'lavender' | 'skyblue' | 'mint';
