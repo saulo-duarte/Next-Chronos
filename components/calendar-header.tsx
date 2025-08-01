@@ -44,9 +44,19 @@ export function CalendarHeader({
   onNewEvent,
   className,
 }: Props) {
-  const { filters, setStatusFilter, clearFilters, hasActiveFilters } = useTaskStore();
+  const { filters, setStatusFilter, clearFilters, hasActiveFilters, setOverdueFilter } =
+    useTaskStore();
 
   const currentStatusLabel = (() => {
+    const { status, dateRange } = filters;
+
+    const isOverdue =
+      Array.isArray(status) &&
+      status.includes('TODO') &&
+      dateRange?.end &&
+      new Date(dateRange.end) < new Date();
+
+    if (isOverdue) return 'Atrasadas';
     if (!filters.status) return 'Todos';
 
     if (Array.isArray(filters.status)) {
@@ -68,8 +78,9 @@ export function CalendarHeader({
 
   const handleStatusChange = (value: TaskStatus | 'ALL') => {
     if (value === 'ALL') {
-      setStatusFilter(undefined);
+      clearFilters();
     } else {
+      clearFilters();
       setStatusFilter(value);
     }
   };
@@ -102,7 +113,7 @@ export function CalendarHeader({
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="start" className="w-32">
-            {(['mês', 'semana', 'dia', 'agenda'] as const).map((v) => (
+            {(['mês', 'semana', 'dia', 'agenda', 'Lista do dia'] as const).map((v) => (
               <DropdownMenuItem
                 key={v}
                 onClick={() => setView(v)}
@@ -143,6 +154,14 @@ export function CalendarHeader({
                   {label}
                 </DropdownMenuItem>
               ))}
+              <DropdownMenuItem
+                onClick={() => {
+                  setOverdueFilter(true);
+                  setView('agenda');
+                }}
+              >
+                Atrasadas
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
 

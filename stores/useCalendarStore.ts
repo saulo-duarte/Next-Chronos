@@ -17,7 +17,7 @@ export const useCalendarStore = create<CalendarState>((set) => ({
   selectedDate: new Date(),
   setSelectedDate: (date) => set({ selectedDate: date }),
 
-  calendarView: 'agenda',
+  calendarView: 'Lista do dia',
   setCalendarView: (view) => set({ calendarView: view }),
 
   currentWeekStart: startOfWeek(new Date(), { weekStartsOn: 0 }),

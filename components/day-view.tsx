@@ -17,14 +17,12 @@ import { cn } from '@/lib/utils';
 import { CalendarEvent } from './types';
 import { isMultiDayEvent } from './utils';
 import { useCurrentTimeIndicator } from './use-current-time-indicator';
-import { EventItem } from './event-item';
 import { DraggableEvent } from './draggable-event';
 import { DroppableCell } from './droppable-cell';
 import { useCalendarStore } from '@/stores/useCalendarStore';
 
 interface DayViewProps {
   events: CalendarEvent[];
-  onEventSelect: (event: CalendarEvent) => void;
   onEventCreate: (startTime: Date) => void;
 }
 
@@ -37,7 +35,7 @@ interface PositionedEvent {
   zIndex: number;
 }
 
-export function DayView({ events, onEventSelect, onEventCreate }: DayViewProps) {
+export function DayView({ events, onEventCreate }: DayViewProps) {
   const { selectedDate } = useCalendarStore();
   const currentDate = selectedDate;
 
@@ -62,10 +60,6 @@ export function DayView({ events, onEventSelect, onEventCreate }: DayViewProps) 
       })
       .sort((a, b) => new Date(a.start).getTime() - new Date(b.start).getTime());
   }, [currentDate, events]);
-
-  const allDayEvents = useMemo(() => {
-    return dayEvents.filter((event) => event.allDay || isMultiDayEvent(event));
-  }, [dayEvents]);
 
   const timeEvents = useMemo(() => {
     return dayEvents.filter((event) => !event.allDay && !isMultiDayEvent(event));
@@ -143,47 +137,12 @@ export function DayView({ events, onEventSelect, onEventCreate }: DayViewProps) 
 
   const handleEventClick = (event: CalendarEvent, e: React.MouseEvent) => {
     e.stopPropagation();
-    onEventSelect(event);
   };
 
-  const showAllDaySection = allDayEvents.length > 0;
   const { currentTimePosition, currentTimeVisible } = useCurrentTimeIndicator(currentDate, 'day');
 
   return (
     <div data-slot="day-view" className="contents">
-      {showAllDaySection && (
-        <div className="border-border/70 bg-muted/50 border-t">
-          <div className="grid grid-cols-[3rem_1fr] sm:grid-cols-[4rem_1fr]">
-            <div className="relative">
-              <span className="text-muted-foreground/70 absolute bottom-0 left-0 h-6 w-16 max-w-full pe-2 text-right text-[10px] sm:pe-4 sm:text-xs">
-                All day
-              </span>
-            </div>
-            <div className="border-border/70 relative border-r p-1 last:border-r-0">
-              {allDayEvents.map((event) => {
-                const eventStart = new Date(event.start);
-                const eventEnd = new Date(event.end);
-                const isFirstDay = isSameDay(currentDate, eventStart);
-                const isLastDay = isSameDay(currentDate, eventEnd);
-
-                return (
-                  <EventItem
-                    key={`spanning-${event.id}`}
-                    onClick={(e) => handleEventClick(event, e)}
-                    event={event}
-                    view="month"
-                    isFirstDay={isFirstDay}
-                    isLastDay={isLastDay}
-                  >
-                    <div>{event.title}</div>
-                  </EventItem>
-                );
-              })}
-            </div>
-          </div>
-        </div>
-      )}
-
       <div className="border-border/70 grid flex-1 grid-cols-[3rem_1fr] overflow-hidden border-t sm:grid-cols-[4rem_1fr]">
         <div>
           {hours.map((hour, index) => (
