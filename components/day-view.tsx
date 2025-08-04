@@ -20,6 +20,7 @@ import { useCurrentTimeIndicator } from './use-current-time-indicator';
 import { DraggableEvent } from './draggable-event';
 import { DroppableCell } from './droppable-cell';
 import { useCalendarStore } from '@/stores/useCalendarStore';
+import { useTaskStore } from '@/stores/useTaskStore';
 
 interface DayViewProps {
   events: CalendarEvent[];
@@ -135,8 +136,13 @@ export function DayView({ events, onEventCreate }: DayViewProps) {
     return result;
   }, [currentDate, timeEvents]);
 
+  const { setSelectedTask, setEditingTask, setEditDrawerOpen } = useTaskStore();
+
   const handleEventClick = (event: CalendarEvent, e: React.MouseEvent) => {
     e.stopPropagation();
+    setSelectedTask(event);
+    setEditingTask(event.id);
+    setEditDrawerOpen(true);
   };
 
   const { currentTimePosition, currentTimeVisible } = useCurrentTimeIndicator(currentDate, 'day');
