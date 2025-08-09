@@ -10,6 +10,10 @@ export function middleware(request: NextRequest) {
     (path) => pathname === path || pathname.startsWith(path + '/')
   );
 
+  if (pathname.startsWith('/api/v1/auth/')) {
+    return NextResponse.next();
+  }
+
   if (isPublic) {
     if (token && (pathname === '/' || pathname === '/login')) {
       return NextResponse.redirect(new URL('/home', request.url));
@@ -23,7 +27,3 @@ export function middleware(request: NextRequest) {
 
   return NextResponse.next();
 }
-
-export const config = {
-  matcher: ['/((?!_next|.*\\..*|favicon.ico|svg).*)'],
-};
