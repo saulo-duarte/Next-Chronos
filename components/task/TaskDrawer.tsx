@@ -211,18 +211,17 @@ export function TaskEditDrawer() {
   };
 
   const combineDateTime = (date: string, time: string) => {
-    if (!date || !time) return '';
+    if (!date) return '';
+    if (!time) return date;
 
     const dateObj = new Date(date);
-    const [year, month, day] = [
-      dateObj.getFullYear(),
-      String(dateObj.getMonth() + 1).padStart(2, '0'),
-      String(dateObj.getDate()).padStart(2, '0'),
-    ];
+    const [hours, minutes] = time.split(':').map(Number);
+    dateObj.setHours(hours, minutes, 0, 0);
 
-    const [hours, minutes] = time.split(':');
+    const tzOffset = dateObj.getTimezoneOffset() * 60000;
+    const localISO = new Date(dateObj.getTime() - tzOffset).toISOString().slice(0, 19);
 
-    return `${year}-${month}-${day}T${hours}:${minutes}:00`;
+    return localISO;
   };
 
   const getInitialFormData = (): TaskFormData => {
