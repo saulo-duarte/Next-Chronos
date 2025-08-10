@@ -217,7 +217,11 @@ export function TaskEditDrawer() {
     const dateObj = new Date(date);
     const [hours, minutes] = time.split(':').map(Number);
     dateObj.setHours(hours, minutes, 0, 0);
-    return dateObj.toISOString();
+
+    const tzOffset = dateObj.getTimezoneOffset() * 60000;
+    const localISO = new Date(dateObj.getTime() - tzOffset).toISOString().slice(0, 19);
+
+    return localISO;
   };
 
   const getInitialFormData = (): TaskFormData => {
