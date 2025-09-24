@@ -4,7 +4,7 @@ import api from '@/lib/api';
 import { Task, TaskFilters, TaskPayload, UpdateTaskPayload } from '@/types/Task';
 import { filterTasks } from '@/utils/filter-task';
 
-const API_URL = 'project/tasks';
+const API_URL = 'tasks';
 
 export function useTasks() {
   return useQuery<Task[]>({

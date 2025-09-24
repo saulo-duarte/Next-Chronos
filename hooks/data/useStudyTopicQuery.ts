@@ -18,8 +18,7 @@ export function useStudyTopics(subjectId: string) {
     queryKey: ['study-topics', subjectId],
     queryFn: async () => {
       const res = await api.get(`/study-topics/subject/${subjectId}`);
-      console.log('response from useStudyTopics:', res);
-      return res.data;
+      return res.data.topics;
     },
     enabled: !!subjectId,
   });
