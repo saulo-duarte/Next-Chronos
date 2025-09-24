@@ -1,6 +1,7 @@
 import axios from 'axios';
+import Cookies from 'js-cookie'; // Para facilitar a leitura do cookie
 
-const baseURL = `${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080'}/api/v1`;
+const baseURL = `${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080'}/`;
 
 const api = axios.create({
   baseURL,
@@ -10,7 +11,22 @@ const api = axios.create({
 let isRefreshing = false;
 let failedQueue: any[] = [];
 
-const processQueue = (error: any = null) => {
+api.interceptors.request.use(
+  (config) => {
+    const token = Cookies.get('jwt');
+
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
+const processQueue = (error = null) => {
   failedQueue.forEach(({ resolve, reject }) => {
     if (error) reject(error);
     else resolve();
@@ -32,7 +48,7 @@ api.interceptors.response.use(
         try {
           await api.post('/auth/refresh', null, { withCredentials: true });
           isRefreshing = false;
-          processQueue(null);
+          processQueue();
           return api(originalRequest);
         } catch (err) {
           processQueue(err);
@@ -44,7 +60,7 @@ api.interceptors.response.use(
       return new Promise((resolve, reject) => {
         failedQueue.push({
           resolve: () => resolve(api(originalRequest)),
-          reject: (err: any) => reject(err),
+          reject: (err) => reject(err),
         });
       });
     }
