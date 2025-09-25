@@ -16,7 +16,8 @@ export function useStudySubjects() {
     queryKey: ['study-subjects'],
     queryFn: async () => {
       const res = await api.get(API_URL);
-      return res.data;
+      console.log('response from useStudySubjects:', res);
+      return res.data.subjects;
     },
   });
 }

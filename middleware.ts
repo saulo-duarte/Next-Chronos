@@ -15,7 +15,7 @@ function isPathPublic(pathname: string) {
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  const token = request.cookies.get('token')?.value;
+  const token = request.cookies.get('jwt')?.value;
 
   if (
     pathname.startsWith('/_next/') ||

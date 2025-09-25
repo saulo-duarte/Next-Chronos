@@ -4,7 +4,7 @@ import api from '@/lib/api';
 import { Task, TaskFilters, TaskPayload, UpdateTaskPayload } from '@/types/Task';
 import { filterTasks } from '@/utils/filter-task';
 
-const API_URL = 'project/tasks';
+const API_URL = 'tasks';
 
 export function useTasks() {
   return useQuery<Task[]>({
@@ -48,7 +48,6 @@ export function useTasksByTopic(topicId: string) {
     queryKey: ['topicTasks', topicId],
     queryFn: async () => {
       const res = await api.get(`/study-topics/${topicId}/tasks`);
-      console.log('response from useTasksByTopic:', res);
       return res.data;
     },
     enabled: !!topicId,
@@ -71,7 +70,6 @@ export function useCreateTask() {
 
   return useMutation({
     mutationFn: async (data: Omit<TaskPayload, 'id' | 'createdAt' | 'updatedAt'>) => {
-      console.log('Creating task with data:', data);
       const res = await api.post(API_URL, data);
       return res.data;
     },

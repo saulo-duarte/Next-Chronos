@@ -11,15 +11,14 @@ export interface Project {
   created_at: string;
 }
 
-const API_URL = 'project';
+const API_URL = 'projects';
 
 export function useProjects() {
   return useQuery<Project[]>({
     queryKey: ['projects'],
     queryFn: async () => {
       const res = await api.get(API_URL);
-      console.log('Fetched projects:', res.data);
-      return res.data;
+      return res.data.projects;
     },
   });
 }

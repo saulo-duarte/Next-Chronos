@@ -42,11 +42,7 @@ export function Auth() {
           </CardHeader>
 
           <CardContent className="space-y-6">
-            <a
-              href={`${baseUrl}/api/v1/oauth2/authorize/google`}
-              aria-label="Entrar com Google"
-              className="block"
-            >
+            <a href={`${baseUrl}/users/register`} aria-label="Entrar com Google" className="block">
               <Button
                 variant="default"
                 size="lg"

@@ -9,7 +9,7 @@ export function useProjectTasks(projectId?: string) {
     queryKey: ['projectTasks', projectId],
     queryFn: async () => {
       if (!projectId) return [];
-      const res = await api.get(`/project/${projectId}/tasks`);
+      const res = await api.get(`/tasks/project/${projectId}`);
       return res.data;
     },
     enabled: !!projectId,
