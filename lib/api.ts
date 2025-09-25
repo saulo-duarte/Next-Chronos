@@ -26,7 +26,7 @@ api.interceptors.request.use(
   }
 );
 
-const processQueue = (error = null) => {
+const processQueue = (error: unknown = null) => {
   failedQueue.forEach(({ resolve, reject }) => {
     if (error) reject(error);
     else resolve();
@@ -60,7 +60,7 @@ api.interceptors.response.use(
       return new Promise((resolve, reject) => {
         failedQueue.push({
           resolve: () => resolve(api(originalRequest)),
-          reject: (err) => reject(err),
+          reject: (err: unknown) => reject(err),
         });
       });
     }
