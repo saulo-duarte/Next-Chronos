@@ -1,5 +1,4 @@
 import axios from 'axios';
-import Cookies from 'js-cookie'; // Para facilitar a leitura do cookie
 
 const baseURL = `${process.env.NEXT_PUBLIC_BACKEND_API || 'http://localhost:8080'}/`;
 
@@ -10,21 +9,6 @@ const api = axios.create({
 
 let isRefreshing = false;
 let failedQueue: any[] = [];
-
-api.interceptors.request.use(
-  (config) => {
-    const token = Cookies.get('jwt');
-
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
-  }
-);
 
 const processQueue = (error: unknown = null) => {
   failedQueue.forEach(({ resolve, reject }) => {
@@ -46,7 +30,7 @@ api.interceptors.response.use(
         isRefreshing = true;
 
         try {
-          await api.post('/auth/refresh', null, { withCredentials: true });
+          await api.post('/users/refresh', null, { withCredentials: true });
           isRefreshing = false;
           processQueue();
           return api(originalRequest);
