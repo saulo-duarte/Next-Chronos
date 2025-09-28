@@ -23,7 +23,7 @@ export async function GET(req: NextRequest) {
   }
 
   try {
-    const backendResp = await fetch(`${BACKEND_URL}/users/login`, {
+    const backendResp = await fetch(`${BACKEND_URL}/auth/login`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

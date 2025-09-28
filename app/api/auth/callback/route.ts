@@ -58,7 +58,7 @@ export async function GET(req: NextRequest) {
       refreshToken: tokens.refresh_token,
     };
 
-    const backendResp = await fetch(`${BACKEND_URL}/users/login`, {
+    const backendResp = await fetch(`${BACKEND_URL}/auth/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(authPayload),

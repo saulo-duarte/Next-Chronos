@@ -30,7 +30,7 @@ api.interceptors.response.use(
         isRefreshing = true;
 
         try {
-          await api.post('/users/refresh', null, { withCredentials: true });
+          await api.post('/auth/refresh', null, { withCredentials: true });
           isRefreshing = false;
           processQueue();
           return api(originalRequest);
