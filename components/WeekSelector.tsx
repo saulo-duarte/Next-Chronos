@@ -33,7 +33,7 @@ export function WeekSelector() {
   });
 
   return (
-    <div className="text-white space-y-2">
+    <div className="text-white space-y-2 md:hidden">
       <div className="flex items-center justify-between">
         <Button
           onClick={handlePrevWeek}

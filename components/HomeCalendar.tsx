@@ -50,7 +50,7 @@ export default function TaskCalendar() {
   if (isLoading) {
     return (
       <div className="max-w-7xl mx-auto mt-10 p-4">
-        <h1 className="text-2xl font-bold mb-4">Calendário de Tarefas</h1>
+        <h1 className="text-2xl font-bold mb-4 md:hidden">Calendário de Tarefas</h1>
         <div className="flex items-center justify-center h-32">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
           <span className="ml-2">Carregando tarefas...</span>
@@ -78,9 +78,9 @@ export default function TaskCalendar() {
   }
 
   return (
-    <div className="w-full mt-2 px-2">
+    <div className="w-full mt-2">
       {(calendarView === 'semana' || calendarView === 'dia' || calendarView === 'Lista do dia') && (
-        <div className="max-w-7xl mx-auto px-4 mb-4">
+        <div className="max-w-7xl mb-4 md:hidden">
           <WeekSelector />
         </div>
       )}
