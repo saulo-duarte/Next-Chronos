@@ -6,10 +6,16 @@ import { useState } from 'react';
 import clsx from 'clsx';
 import HomeCalendar from '@/components/HomeCalendar';
 import { TaskEditDrawer } from '@/components/task/TaskDrawer';
+import CalendarPage from './components/CalendarPage';
+import { useIsMobile } from '@/hooks/use-mobile';
 
-function PageHeader() {
-  const [activeTab, setActiveTab] = useState<'Atividades' | 'Estatísticas'>('Atividades');
-
+function MobileLayout({
+  activeTab,
+  setActiveTab,
+}: {
+  activeTab: string;
+  setActiveTab: (tab: string) => void;
+}) {
   return (
     <>
       <header className="w-full bg-background backdrop-blur-md shadow-sm py-2">
@@ -20,7 +26,7 @@ function PageHeader() {
           {['Atividades', 'Estatísticas'].map((tab) => (
             <button
               key={tab}
-              onClick={() => setActiveTab(tab as 'Atividades' | 'Estatísticas')}
+              onClick={() => setActiveTab(tab)}
               className={clsx(
                 'flex-1 py-2 text-center text-sm transition-colors',
                 activeTab === tab
@@ -28,7 +34,7 @@ function PageHeader() {
                   : 'text-muted-foreground'
               )}
             >
-              {tab === 'Atividades' ? 'Atividades' : 'Estatísticas'}
+              {tab}
             </button>
           ))}
         </nav>
@@ -43,4 +49,25 @@ function PageHeader() {
   );
 }
 
-export default PageHeader;
+function DesktopLayout() {
+  return (
+    <>
+      <CalendarPage />
+    </>
+  );
+}
+
+export default function PageHeader() {
+  const isMobile = useIsMobile();
+  const [activeTab, setActiveTab] = useState('Atividades');
+
+  if (typeof window === 'undefined') {
+    return <DesktopLayout />;
+  }
+
+  if (isMobile) {
+    return <MobileLayout activeTab={activeTab} setActiveTab={setActiveTab} />;
+  } else {
+    return <DesktopLayout />;
+  }
+}

@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
 import { Providers } from '@/providers/ReactQuery';
+import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
+import { AppSidebar } from '@/components/app-sidebar';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -25,11 +27,16 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="pt-BR" className="dark">
-      <body className={`${geistSans.variable} ${geistMono.variable}`}>
-        <div className="px-2 md:px-6">
-          <Providers>{children}</Providers>
-        </div>
-      </body>
+      <SidebarProvider>
+        <AppSidebar />
+        <SidebarInset>
+          <body className={`${geistSans.variable} ${geistMono.variable}`}>
+            <div className="px-2 md:px-6">
+              <Providers>{children}</Providers>
+            </div>
+          </body>
+        </SidebarInset>
+      </SidebarProvider>
     </html>
   );
 }

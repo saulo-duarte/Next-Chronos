@@ -86,7 +86,7 @@ export function CalendarHeader({
   };
 
   return (
-    <div className={`space-y-3 ${className ?? ''} mb-4`}>
+    <div className={`space-y-3 md:hidden ${className ?? ''} mb-4`}>
       {view === 'mês' && (
         <div className="flex items-center gap-2">
           <div className="flex items-center">
