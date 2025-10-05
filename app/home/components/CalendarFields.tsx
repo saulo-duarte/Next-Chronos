@@ -30,6 +30,8 @@ export function CalendarFilters({ onViewChange }: CalendarFiltersProps) {
   const { filters, setStatusFilter, setPriorityFilter, setDateRangeFilter, clearFilters } =
     useTaskStore();
 
+  const { setSelectedTask, setModalOpen } = useTaskStore();
+
   const { setCalendarView } = useCalendarStore();
 
   const handleClear = () => {
@@ -124,7 +126,13 @@ export function CalendarFilters({ onViewChange }: CalendarFiltersProps) {
         </Button>
       </div>
 
-      <Button className="flex items-center gap-1">
+      <Button
+        className="flex items-center gap-1"
+        onClick={() => {
+          setModalOpen(true);
+          setSelectedTask(null);
+        }}
+      >
         <Plus className="h-4 w-4" />
         Novo Evento
       </Button>

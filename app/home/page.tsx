@@ -8,6 +8,7 @@ import HomeCalendar from '@/components/HomeCalendar';
 import { TaskEditDrawer } from '@/components/task/TaskDrawer';
 import CalendarPage from './components/CalendarPage';
 import { useIsMobile } from '@/hooks/use-mobile';
+import Dashboard from '../dashboard/Dashboard';
 
 function MobileLayout({
   activeTab,
@@ -40,9 +41,12 @@ function MobileLayout({
         </nav>
       </header>
 
-      <div className="space-y-4 mb-20">
-        <HomeCalendar />
+      <div className="space-y-4 mb-20 p-4">
+        {activeTab === 'Atividades' && <HomeCalendar />}
+
+        {activeTab === 'Estatísticas' && <Dashboard />}
       </div>
+
       <TaskEditDrawer />
       <MobileBottomNav />
     </>
