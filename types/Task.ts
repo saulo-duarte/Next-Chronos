@@ -54,3 +54,20 @@ export interface TaskFilters {
     end?: string;
   };
 }
+
+export interface DashboardInfo {
+  last_tasks: Task[];
+  month: Task[];
+  stats: {
+    total: number;
+    done: number;
+    todo: number;
+    in_progress: number;
+    overdue: number;
+  };
+  type: {
+    event: number;
+    project: number;
+    study: number;
+  };
+}

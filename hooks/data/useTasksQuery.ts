@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useMemo } from 'react';
 import api from '@/lib/api';
-import { Task, TaskFilters, TaskPayload, UpdateTaskPayload } from '@/types/Task';
+import { DashboardInfo, Task, TaskFilters, TaskPayload, UpdateTaskPayload } from '@/types/Task';
 import { filterTasks } from '@/utils/filter-task';
 
 const API_URL = 'tasks';
@@ -135,5 +135,17 @@ export function useDeleteTask() {
         queryClient.invalidateQueries({ queryKey: ['topicTasks', variables.studyTopicId] });
       }
     },
+  });
+}
+
+export function useDashboardTasks() {
+  return useQuery<DashboardInfo>({
+    queryKey: ['dashboardTasks'],
+    queryFn: async () => {
+      const res = await api.get('/tasks/dashboard/stats');
+      console.log('Dashboard tasks:', res.data);
+      return res.data;
+    },
+    staleTime: 1000 * 60 * 5,
   });
 }
