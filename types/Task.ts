@@ -1,3 +1,6 @@
+import { Project } from '@/hooks/data/useProjectQuery';
+import { StudyTopic } from '@/hooks/data/useStudyTopicQuery';
+
 export type TaskStatus = 'TODO' | 'IN_PROGRESS' | 'DONE';
 export type TaskType = 'PROJECT' | 'STUDY' | 'EVENT';
 export type TaskPriority = 'LOW' | 'MEDIUM' | 'HIGH';
@@ -18,6 +21,8 @@ export interface Task {
   projectId?: string;
   studyTopicId?: string;
   studyTopicName?: string;
+  project: Project;
+  studyTopic: StudyTopic;
 }
 
 export interface TaskPayload {
