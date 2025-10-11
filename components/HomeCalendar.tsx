@@ -32,6 +32,8 @@ const taskToCalendarEvent = (task: Task): CalendarEvent => {
     end: endDate,
     allDay: isAllDay,
     color: getTaskTypeColor(task.type),
+    studyTopic: task.studyTopic,
+    project: task.project,
   };
 };
 

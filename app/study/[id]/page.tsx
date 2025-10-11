@@ -13,7 +13,7 @@ import { StudyTopicModal } from '../components/CreateTopicModal';
 import { EventDialog } from '@/components/event-dialog';
 import { MobileBottomNav } from '@/components/MobileBottomNav';
 import Image from 'next/image';
-import { TaskEditDrawer } from '@/components/task/TaskDrawer';
+import { TaskEditDialog } from '@/components/task/TaskEditDialog';
 
 export default function SubjectPage() {
   const params = useParams();
@@ -94,7 +94,9 @@ export default function SubjectPage() {
       <StudyTopicModal topicCount={topics?.length || 0} />
       <EventDialog taskType="STUDY" />
       <MobileBottomNav />
-      <TaskEditDrawer />
+
+      {/* Renderiza apenas o Dialog */}
+      <TaskEditDialog />
     </div>
   );
 }
