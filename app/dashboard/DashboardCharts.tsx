@@ -25,9 +25,9 @@ export const DashboardTypeDistributionChart = () => {
     );
 
   const typeDistribution = [
-    { name: 'Projetos', value: data.type.project, fill: 'var(--color-chart-1)' },
-    { name: 'Estudos', value: data.type.study, fill: 'var(--color-chart-2)' },
-    { name: 'Eventos', value: data.type.event, fill: 'var(--color-chart-3)' },
+    { name: 'Projetos', value: data.type.project, fill: '#2e6cc9' },
+    { name: 'Estudos', value: data.type.study, fill: '#7b39bd' },
+    { name: 'Eventos', value: data.type.event, fill: '#42b854' },
   ].filter((item) => item.value > 0);
 
   return (
@@ -35,14 +35,14 @@ export const DashboardTypeDistributionChart = () => {
       <CardHeader>
         <CardTitle>Distribuição por Tipo</CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="p-0">
         <ChartContainer
           config={{
-            project: { label: 'Projetos', color: 'var(--color-chart-1)' },
-            study: { label: 'Estudos', color: 'var(--color-chart-2)' },
-            event: { label: 'Eventos', color: 'var(--color-chart-3)' },
+            project: { label: 'Projetos', color: '#2e6cc9' },
+            study: { label: 'Estudos', color: '#7b39bd' },
+            event: { label: 'Eventos', color: '#42b854' },
           }}
-          className="h-[300px]"
+          className="w-full h-[250px] sm:h-[300px] md:h-[350px] lg:h-[400px]"
         >
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
@@ -66,7 +66,7 @@ export const DashboardTypeDistributionChart = () => {
                 layout="horizontal"
                 verticalAlign="bottom"
                 align="center"
-                wrapperStyle={{ paddingTop: 20 }}
+                wrapperStyle={{ paddingTop: 12, flexWrap: 'wrap' }}
               />
             </PieChart>
           </ResponsiveContainer>

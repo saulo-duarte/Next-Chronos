@@ -111,9 +111,10 @@ export const DashboardMonthlyChart = () => {
 
   return (
     <Card>
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+      <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between space-y-2 sm:space-y-0 pb-2">
         <CardTitle className="text-xl font-bold">{title}</CardTitle>
-        <div className="space-x-2">
+
+        <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2 w-full sm:w-auto mt-0 sm:mt-0">
           <Button
             size="sm"
             variant={view === 'month_week' ? 'default' : 'outline'}
@@ -130,18 +131,21 @@ export const DashboardMonthlyChart = () => {
           </Button>
         </div>
       </CardHeader>
+
       <CardContent>
-        <ChartContainer config={chartConfig} className="h-[300px]">
+        <ChartContainer
+          config={chartConfig}
+          className="w-full h-[250px] sm:h-[300px] md:h-[350px] lg:h-[400px] -mx-4"
+        >
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={chartData} barCategoryGap={10}>
+            <BarChart data={chartData} barCategoryGap={12}>
               <XAxis dataKey="period" stroke="var(--color-muted-foreground)" fontSize={12} />
               <YAxis stroke="var(--color-muted-foreground)" fontSize={12} allowDecimals={false} />
               <ChartTooltip content={<ChartTooltipContent />} />
-
               <Bar dataKey="completed" radius={[4, 4, 0, 0]}>
                 {chartData.map((entry, index) => (
                   <Cell
-                    key={`cell-${index}`}
+                    key={index}
                     fill={entry.fill || 'var(--color-chart-1)'}
                     opacity={
                       entry.fill === 'var(--color-muted-foreground)' && entry.completed === 0

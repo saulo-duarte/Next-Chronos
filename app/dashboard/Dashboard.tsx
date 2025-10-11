@@ -32,7 +32,7 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-background p-6 md:p-8 dark">
+    <div className="min-h-screen bg-background md:p-8 dark">
       <div className="max-w-7xl mx-auto space-y-6">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-balance">Dashboard de Tarefas</h1>
