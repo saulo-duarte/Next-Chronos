@@ -308,18 +308,20 @@ export function EventItem({
             </span>
           )}
 
-          {event.priority &&
+          {(event.type === 'PROJECT' || event.type === 'STUDY') &&
             (() => {
-              const { icon, className } = getPriorityBadge(event.priority);
+              const label =
+                event.type === 'PROJECT' ? event.project?.title : event.studyTopic?.name;
+
+              if (!label) return null;
+
               return (
                 <span
                   className={cn(
-                    'ml-2 flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] font-semibold',
-                    className
+                    'ml-2 flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] font-semibold'
                   )}
                 >
-                  {icon}
-                  {formatLabel(event.priority)}
+                  {label}
                 </span>
               );
             })()}
