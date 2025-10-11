@@ -8,7 +8,7 @@ import {
   ProjectStatus,
 } from '@/hooks/data/useProjectQuery';
 
-import { Plus, Search } from 'lucide-react';
+import { Plus, Search, Filter } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -24,7 +24,6 @@ import {
   SelectItem,
   SelectValue,
 } from '@/components/ui/select';
-import { Filter } from 'lucide-react';
 
 export default function ProjectsPage() {
   const { data: projects, isLoading } = useProjects();
@@ -57,6 +56,7 @@ export default function ProjectsPage() {
     <div className="flex flex-col gap-2 mb-4">
       <div className="sm:hidden">
         <h1 className="text-2xl font-semibold py-4 px-2">Meus Projetos</h1>
+        <ProjectFormDialog />
 
         <Tabs defaultValue={statusFilter} onValueChange={(value) => setStatusFilter(value as any)}>
           <TabsList className="w-full grid grid-cols-4 gap-2 bg-background">
@@ -105,13 +105,17 @@ export default function ProjectsPage() {
         )}
       </div>
 
-      <div className="hidden sm:flex flex-col gap-4">
+      <div className="hidden sm:flex flex-col gap-6 px-8 py-6">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <h1 className="text-3xl font-bold tracking-tight">Projetos</h1>
             <p className="text-muted-foreground">Gerencie todos os seus projetos em um só lugar</p>
           </div>
-          <ProjectFormDialog />
+
+          <Button onClick={() => setIsAddModalOpen(true)} size="lg">
+            <Plus className="mr-2 h-5 w-5" />
+            Novo Projeto
+          </Button>
         </div>
 
         <div className="flex flex-col sm:flex-row gap-4">
@@ -124,11 +128,12 @@ export default function ProjectsPage() {
               className="pl-10"
             />
           </div>
+
           <Select
             value={statusFilter}
             onValueChange={(value: ProjectStatus | 'all') => setStatusFilter(value)}
           >
-            <SelectTrigger className="w-full sm:w-[180px]">
+            <SelectTrigger className="w-full sm:w-[200px]">
               <Filter className="w-4 h-4 mr-2" />
               <SelectValue placeholder="Filtrar por status" />
             </SelectTrigger>
@@ -141,6 +146,7 @@ export default function ProjectsPage() {
           </Select>
         </div>
 
+        {/* Grid de projetos */}
         {isLoading ? (
           <p className="text-center text-muted-foreground mt-6">Carregando projetos...</p>
         ) : filteredProjects.length === 0 ? (
@@ -158,7 +164,7 @@ export default function ProjectsPage() {
             )}
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 mt-4">
             {filteredProjects.map((project) => (
               <ProjectCard
                 key={project.id}
