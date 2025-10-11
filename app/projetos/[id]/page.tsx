@@ -15,8 +15,8 @@ import { EventDialog } from '@/components/event-dialog';
 import { useParams } from 'next/navigation';
 import { useTaskStore } from '@/stores/useTaskStore';
 import { useFilteredProjectTasks } from '@/hooks/data/useProjectsTasks';
-import { useProjectStore } from '@/stores/useProjectStore';
-import { TaskEditDrawer } from '@/components/task/TaskDrawer';
+import { TaskEditDialog } from '@/components/task/TaskEditDialog';
+import { useProject } from '@/hooks/data/useProjectQuery';
 
 export default function TasksPage() {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -25,7 +25,8 @@ export default function TasksPage() {
   const setModalOpen = useTaskStore((state) => state.setModalOpen);
   const filters = useTaskStore((state) => state.filters);
   const { tasks = [] } = useFilteredProjectTasks(projectId, filters);
-  const { selectedProjectTitle } = useProjectStore();
+  const { data: project } = projectId ? useProject(projectId) : { data: null };
+  const selectedProjectTitle = project?.title || 'Projeto';
 
   const tasksByStatus = useMemo(() => {
     const group = {
@@ -62,7 +63,7 @@ export default function TasksPage() {
         </Tabs>
       </div>
 
-      <div className="flex-1 overflow-y-auto px-4 pt-4">
+      <div className="flex-1 overflow-y-auto px-4">
         <Tabs defaultValue="tasks">
           <TabsContent value="tasks">
             <TaskList
@@ -115,7 +116,8 @@ export default function TasksPage() {
       {projectId && <EventDialog taskType="PROJECT" projectId={projectId} />}
       <FilterSheet open={isFilterOpen} onOpenChange={setIsFilterOpen} />
       <MobileBottomNav />
-      <TaskEditDrawer />
+
+      <TaskEditDialog />
     </div>
   );
 }
