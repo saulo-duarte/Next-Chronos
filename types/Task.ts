@@ -58,6 +58,7 @@ export interface TaskFilters {
     start?: string;
     end?: string;
   };
+  overdue?: boolean;
 }
 
 export interface DashboardInfo {

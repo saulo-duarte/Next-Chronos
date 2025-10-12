@@ -3,7 +3,7 @@
 import * as React from 'react';
 import Image from 'next/image';
 import { IoHome } from 'react-icons/io5';
-import { FaBookOpen, FaSuitcase } from 'react-icons/fa6';
+import { FaBookOpen, FaFilter, FaSuitcase } from 'react-icons/fa6';
 import { NavMain } from '@/components/nav-main';
 import {
   Sidebar,
@@ -14,7 +14,7 @@ import {
   useSidebar,
 } from '@/components/ui/sidebar';
 import { Separator } from '@/components/ui/separator';
-import { Skeleton } from '@/components/ui/skeleton';
+import { WeekSelectorDesktop } from './WeekSelectorDesktop';
 
 const navItems = [
   {
@@ -41,6 +41,7 @@ export function AppSidebar() {
 
   return (
     <Sidebar collapsible="icon">
+      {/* HEADER */}
       <SidebarHeader>
         {isCollapsed ? (
           <div className="flex h-16 items-center justify-center">
@@ -59,10 +60,19 @@ export function AppSidebar() {
 
       <SidebarContent>
         <NavMain items={navItems} />
+        {!isCollapsed && (
+          <>
+            <Separator className="my-2 border-white/10" />
+            <h3 className="px-4 mt-4 mb-2 text-sm font-semibold text-white/70">
+              <FaFilter className="inline mr-2 mb-1" />
+              Filtros
+            </h3>
+            <WeekSelectorDesktop />
+          </>
+        )}
       </SidebarContent>
 
-      <SidebarFooter></SidebarFooter>
-
+      <SidebarFooter />
       <SidebarRail />
     </Sidebar>
   );
