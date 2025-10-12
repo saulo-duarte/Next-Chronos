@@ -27,8 +27,7 @@ export function AppHeader({ breadcrumbs }: AppHeaderProps) {
 
   return (
     <header className="bg-sidebar sticky top-0 z-20 flex h-16 shrink-0 items-center border-b transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-16 px-4">
-      {/* Parte esquerda: botão e breadcrumbs */}
-      <div className="flex items-center gap-2">
+      <div className="hidden sm:flex items-center gap-2">
         <SidebarTrigger className="-ml-1" />
         <Separator orientation="vertical" className="mr-2 data-[orientation=vertical]:h-4" />
         <Breadcrumb>
@@ -37,9 +36,12 @@ export function AppHeader({ breadcrumbs }: AppHeaderProps) {
               <React.Fragment key={index}>
                 <BreadcrumbItem className={item.isCurrent ? '' : 'hidden md:block'}>
                   {item.isCurrent ? (
-                    <BreadcrumbPage>{item.label}</BreadcrumbPage>
+                    <BreadcrumbPage className="flex items-center gap-1">
+                      {item.icon}
+                      {item.label}
+                    </BreadcrumbPage>
                   ) : (
-                    <BreadcrumbLink href={item.href}>
+                    <BreadcrumbLink href={item.href} className="flex items-center gap-1">
                       {item.icon}
                       {item.label}
                     </BreadcrumbLink>
@@ -54,15 +56,9 @@ export function AppHeader({ breadcrumbs }: AppHeaderProps) {
         </Breadcrumb>
       </div>
 
-      <div className="ml-auto flex items-center gap-2">
+      <div className="ml-auto flex items-center gap-4">
         {isLoading ? (
-          <div className="flex items-center gap-2">
-            <Skeleton className="h-8 w-8 rounded-full" />
-            <div className="hidden md:flex flex-col space-y-1">
-              <Skeleton className="h-3 w-24" />
-              <Skeleton className="h-3 w-16" />
-            </div>
-          </div>
+          <Skeleton className="h-8 w-8 rounded-full" />
         ) : !isError && user ? (
           <NavUser
             user={{

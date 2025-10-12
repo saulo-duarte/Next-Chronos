@@ -11,7 +11,7 @@ export default function ProjectsLayout({
     <SidebarProvider>
       <AppSidebar />
       <SidebarInset>
-        <div className="px-2 md:px-6">{children}</div>
+        <div>{children}</div>
       </SidebarInset>
     </SidebarProvider>
   );

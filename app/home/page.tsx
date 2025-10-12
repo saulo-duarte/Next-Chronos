@@ -7,7 +7,7 @@ import HomeCalendar from '@/components/HomeCalendar';
 import Dashboard from '../dashboard/Dashboard';
 import { TaskEditDialog } from '@/components/task/TaskEditDialog';
 import { Button } from '@/components/ui/button';
-import { Plus } from 'lucide-react';
+import { Home, Plus } from 'lucide-react';
 import { useUser } from '@/hooks/data/useUserQuery';
 import { useTaskStore } from '@/stores/useTaskStore';
 import { AppHeader } from '@/components/AppHeader';
@@ -32,8 +32,7 @@ function AppLayout({
   const breadcrumbs = [
     {
       label: 'Home',
-      href: '/home',
-      icon: <FaHome className="text-muted-foreground mr-1 mb-0.5 inline h-4 w-4" />,
+      icon: <Home size={16} />,
       isCurrent: true,
     },
   ];

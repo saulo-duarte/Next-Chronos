@@ -10,6 +10,8 @@ import { useDeleteStudySubject, useStudySubjects } from '@/hooks/data/useStudySu
 import { useStudySubjectStore } from '@/stores/useSubjectStore';
 import { StudySubjectCard } from './SubjectCard';
 import { StudySubjectFormDialog } from '../projetos/components/StudySubjectFormDialog';
+import { FaBook } from 'react-icons/fa6';
+import { AppHeader } from '@/components/AppHeader';
 
 export default function StudySubjectsPage() {
   const { data: subjects, isLoading } = useStudySubjects();
@@ -30,82 +32,101 @@ export default function StudySubjectsPage() {
     deleteSubject.mutate(id);
   };
 
+  const breadcrumbs = [
+    {
+      label: 'Estudos',
+      isCurrent: true,
+      icon: <FaBook size={16} className="mr-2" />,
+    },
+  ];
+
   return (
-    <div className="min-h-screen flex flex-col gap-2 mb-20">
-      <div className="sm:hidden">
-        <h1 className="text-2xl font-semibold py-4 px-2">Meus Estudos</h1>
+    <>
+      <AppHeader breadcrumbs={breadcrumbs} />
+      <div className="min-h-screen flex flex-col gap-2 mb-20 px-2 md:px-6 mt-6">
+        <div className="sm:hidden">
+          <h1 className="text-2xl font-semibold py-4 px-2">Meus Estudos</h1>
 
-        {isLoading ? (
-          <p className="text-center text-muted-foreground mt-6">Carregando assuntos...</p>
-        ) : filteredSubjects.length === 0 ? (
-          <div className="text-center py-12">
-            <p className="text-muted-foreground mb-4">
-              {searchTerm
-                ? 'Nenhum assunto encontrado com a busca aplicada.'
-                : 'Nenhum assunto encontrado. Crie seu primeiro!'}
-            </p>
-            {!searchTerm && (
-              <Button onClick={() => setIsAddModalOpen(true)}>
-                <Plus className="w-4 h-4 mr-2" />
-                Criar Primeiro Assunto
-              </Button>
-            )}
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 gap-6">
-            {filteredSubjects.map((subject) => (
-              <StudySubjectCard key={subject.id} subject={subject} onDelete={handleDeleteSubject} />
-            ))}
-          </div>
-        )}
-      </div>
-
-      <div className="hidden sm:flex flex-col gap-4">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">Estudos</h1>
-            <p className="text-muted-foreground">Organize seus assuntos de estudo por tópicos</p>
-          </div>
-          <StudySubjectFormDialog />
+          {isLoading ? (
+            <p className="text-center text-muted-foreground mt-6">Carregando assuntos...</p>
+          ) : filteredSubjects.length === 0 ? (
+            <div className="text-center py-12">
+              <p className="text-muted-foreground mb-4">
+                {searchTerm
+                  ? 'Nenhum assunto encontrado com a busca aplicada.'
+                  : 'Nenhum assunto encontrado. Crie seu primeiro!'}
+              </p>
+              {!searchTerm && (
+                <Button onClick={() => setIsAddModalOpen(true)}>
+                  <Plus className="w-4 h-4 mr-2" />
+                  Criar Primeiro Assunto
+                </Button>
+              )}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 gap-6">
+              {filteredSubjects.map((subject) => (
+                <StudySubjectCard
+                  key={subject.id}
+                  subject={subject}
+                  onDelete={handleDeleteSubject}
+                />
+              ))}
+            </div>
+          )}
         </div>
 
-        <div className="relative w-full max-w-md">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-          <Input
-            placeholder="Buscar assuntos..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10"
-          />
+        <div className="hidden sm:flex flex-col gap-4">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+              <h1 className="text-3xl font-bold tracking-tight">Estudos</h1>
+              <p className="text-muted-foreground">Organize seus assuntos de estudo por tópicos</p>
+            </div>
+            <StudySubjectFormDialog />
+          </div>
+
+          <div className="relative w-full max-w-md">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+            <Input
+              placeholder="Buscar assuntos..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10"
+            />
+          </div>
+
+          {isLoading ? (
+            <p className="text-center text-muted-foreground mt-6">Carregando assuntos...</p>
+          ) : filteredSubjects.length === 0 ? (
+            <div className="text-center py-12">
+              <p className="text-muted-foreground mb-4">
+                {searchTerm
+                  ? 'Nenhum assunto encontrado com a busca aplicada.'
+                  : 'Nenhum assunto encontrado. Crie seu primeiro!'}
+              </p>
+              {!searchTerm && (
+                <Button onClick={() => setIsAddModalOpen(true)}>
+                  <Plus className="w-4 h-4 mr-2" />
+                  Criar Primeiro Assunto
+                </Button>
+              )}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
+              {filteredSubjects.map((subject) => (
+                <StudySubjectCard
+                  key={subject.id}
+                  subject={subject}
+                  onDelete={handleDeleteSubject}
+                />
+              ))}
+            </div>
+          )}
         </div>
 
-        {isLoading ? (
-          <p className="text-center text-muted-foreground mt-6">Carregando assuntos...</p>
-        ) : filteredSubjects.length === 0 ? (
-          <div className="text-center py-12">
-            <p className="text-muted-foreground mb-4">
-              {searchTerm
-                ? 'Nenhum assunto encontrado com a busca aplicada.'
-                : 'Nenhum assunto encontrado. Crie seu primeiro!'}
-            </p>
-            {!searchTerm && (
-              <Button onClick={() => setIsAddModalOpen(true)}>
-                <Plus className="w-4 h-4 mr-2" />
-                Criar Primeiro Assunto
-              </Button>
-            )}
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
-            {filteredSubjects.map((subject) => (
-              <StudySubjectCard key={subject.id} subject={subject} onDelete={handleDeleteSubject} />
-            ))}
-          </div>
-        )}
+        <FloatingNewSubjectButton />
+        <MobileBottomNav />
       </div>
-
-      <FloatingNewSubjectButton />
-      <MobileBottomNav />
-    </div>
+    </>
   );
 }
