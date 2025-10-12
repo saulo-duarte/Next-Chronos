@@ -10,6 +10,8 @@ import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
 import { useUser } from '@/hooks/data/useUserQuery';
 import { useTaskStore } from '@/stores/useTaskStore';
+import { AppHeader } from '@/components/AppHeader';
+import { FaHome } from 'react-icons/fa';
 
 function AppLayout({
   activeTab,
@@ -27,11 +29,21 @@ function AppLayout({
     return 'Boa noite';
   }, []);
 
-  const { setSelectedTask, setModalOpen } = useTaskStore();
+  const breadcrumbs = [
+    {
+      label: 'Home',
+      href: '/home',
+      icon: <FaHome className="text-muted-foreground mr-1 mb-0.5 inline h-4 w-4" />,
+      isCurrent: true,
+    },
+  ];
+
+  const { setModalOpen, setSelectedTask } = useTaskStore();
 
   return (
     <>
-      <header className="w-full sticky top-0 z-50 bg-background/80 backdrop-blur-md border-b border-border">
+      <AppHeader breadcrumbs={breadcrumbs} />
+      <header className="w-full sticky top-0 z-50 bg-background/80 backdrop-blur-md border-b border-border px-2 md:px-6">
         <div className="flex items-center justify-between px-4 py-3">
           <div className="flex flex-col">
             <span className="text-sm text-muted-foreground">{greeting},</span>
