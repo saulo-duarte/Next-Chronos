@@ -47,7 +47,7 @@ export function DesktopTaskFilters() {
   };
 
   return (
-    <div className="flex items-center justify-start gap-6 p-4 bg-background">
+    <div className="hidden md:flex items-center justify-start gap-6 p-4 bg-background">
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="outline" size="sm" className="gap-2 px-4">
