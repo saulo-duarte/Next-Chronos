@@ -30,12 +30,17 @@ export function NavUser({
 }) {
   const { isMobile } = useSidebar();
 
-  function handleLogout() {
-    // Remove o cookie jwt
-    document.cookie = 'jwt=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
-
-    // Opcional: redirecionar para a página de login
-    window.location.href = '/login';
+  async function handleLogout() {
+    try {
+      await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API}/auth/logout`, {
+        method: 'POST',
+        credentials: 'include',
+      });
+    } catch (err) {
+      console.error('Error during logout:', err);
+    } finally {
+      window.location.href = '/login';
+    }
   }
 
   return (
