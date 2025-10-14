@@ -38,10 +38,10 @@ function AppLayout({
   return (
     <>
       <AppHeader breadcrumbs={breadcrumbs} />
-      <header className="w-full sticky top-0 z-50 bg-background/80 backdrop-blur-md border-b border-border px-2 md:px-6">
-        <div className="flex items-center justify-between px-4 py-3">
-          <div className="flex flex-col">
-            <span className="text-lg font-semibold text-foreground">
+      <header className="w-full sticky top-15 z-50 bg-background/80 backdrop-blur-md border-b border-border px-2 md:px-6">
+        <div className="flex items-center justify-between px-4 py-3 hidden md:block">
+          <div className="flex flex-col ">
+            <span className="text-lg font-semibold text-foreground hidden md:block">
               {greeting}, {user?.username ?? 'usuário'}
             </span>
           </div>
