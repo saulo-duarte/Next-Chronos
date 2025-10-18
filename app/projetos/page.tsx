@@ -66,7 +66,7 @@ export default function ProjectsPage() {
     <>
       <AppHeader breadcrumbs={breadcrumbs} />
       <div className="flex flex-col gap-2 mb-4">
-        <div className="sm:hidden">
+        <div className="sm:hidden sm:px-4 px-2">
           <h1 className="text-2xl font-semibold py-4 px-2">Meus Projetos</h1>
           <ProjectFormDialog />
 
@@ -163,7 +163,6 @@ export default function ProjectsPage() {
             </Select>
           </div>
 
-          {/* Grid de projetos */}
           {isLoading ? (
             <p className="text-center text-muted-foreground mt-6">Carregando projetos...</p>
           ) : filteredProjects.length === 0 ? (

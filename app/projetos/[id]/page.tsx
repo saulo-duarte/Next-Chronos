@@ -63,7 +63,7 @@ export default function TasksPage() {
     <>
       <AppHeader breadcrumbs={breadcrumbs} />
       <div className="h-screen flex flex-col bg-background">
-        <div className="sticky top-0 z-40 bg-background px-4 pt-8 pb-4">
+        <div className="sticky top-0 z-40 bg-background px-4 pt-2 pb-4">
           <div className="flex items-center gap-3 mb-4">
             <Button
               variant="ghost"

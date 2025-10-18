@@ -43,7 +43,7 @@ export default function SubjectPage() {
       <AppHeader breadcrumbs={breadcrumbs} />
       <div className="h-screen flex flex-col bg-background px-2 md:px-6">
         <Tabs defaultValue="tasks" className="flex flex-col flex-1">
-          <div className="sticky top-0 z-40 bg-background px-1 pt-8 pb-4">
+          <div className="sticky top-0 z-40 bg-background px-1 pt-2 md:py-4">
             <div className="flex items-center gap-3 mb-4">
               <Link href="/study">
                 <Button variant="ghost" size="icon" className="text-white hover:bg-gray-800">

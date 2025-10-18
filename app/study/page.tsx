@@ -43,7 +43,7 @@ export default function StudySubjectsPage() {
   return (
     <>
       <AppHeader breadcrumbs={breadcrumbs} />
-      <div className="min-h-screen flex flex-col gap-2 mb-20 px-2 md:px-6 mt-6">
+      <div className="min-h-screen flex flex-col gap-2 mb-20 px-2 md:px-6 md:py-4">
         <div className="sm:hidden">
           <h1 className="text-2xl font-semibold py-4 px-2">Meus Estudos</h1>
 
