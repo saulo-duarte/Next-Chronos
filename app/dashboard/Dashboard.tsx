@@ -33,16 +33,15 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-background md:p-8 dark">
-      <div className="max-w-7xl mx-auto space-y-6">
+      <div className="w-full space-y-6">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-balance">Dashboard de Tarefas</h1>
         </div>
 
         <DashboardStatsCards />
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-[65%_33%] gap-6">
           <DashboardLatestTasks />
-
           <DashboardCalendar />
         </div>
 
