@@ -12,6 +12,7 @@ import {
 import { NavUser } from './nav-user';
 import { useUser } from '@/hooks/data/useUserQuery';
 import { Skeleton } from '@/components/ui/skeleton';
+import Image from 'next/image';
 
 interface AppHeaderProps {
   breadcrumbs: {
@@ -27,33 +28,38 @@ export function AppHeader({ breadcrumbs }: AppHeaderProps) {
 
   return (
     <header className="bg-sidebar sticky top-0 z-20 flex h-16 shrink-0 items-center border-b transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-16 px-4">
-      <div className="hidden sm:flex items-center gap-2">
-        <SidebarTrigger className="-ml-1" />
+      <div className="flex items-center gap-2">
+        <SidebarTrigger className="hidden md:block -ml-1" />
         <Separator orientation="vertical" className="mr-2 data-[orientation=vertical]:h-4" />
-        <Breadcrumb>
-          <BreadcrumbList>
-            {breadcrumbs.map((item, index) => (
-              <React.Fragment key={index}>
-                <BreadcrumbItem className={item.isCurrent ? '' : 'hidden md:block'}>
-                  {item.isCurrent ? (
-                    <BreadcrumbPage className="flex items-center gap-1">
-                      {item.icon}
-                      {item.label}
-                    </BreadcrumbPage>
-                  ) : (
-                    <BreadcrumbLink href={item.href} className="flex items-center gap-1">
-                      {item.icon}
-                      {item.label}
-                    </BreadcrumbLink>
+        <div className="sm:hidden flex items-center ">
+          <Image src="/icons/App Logo.png" alt="Logo" width={32} height={32} />
+        </div>
+        <div className="hidden sm:flex items-center">
+          <Breadcrumb>
+            <BreadcrumbList>
+              {breadcrumbs.map((item, index) => (
+                <React.Fragment key={index}>
+                  <BreadcrumbItem className={item.isCurrent ? '' : 'hidden md:block'}>
+                    {item.isCurrent ? (
+                      <BreadcrumbPage className="flex items-center gap-1">
+                        {item.icon}
+                        {item.label}
+                      </BreadcrumbPage>
+                    ) : (
+                      <BreadcrumbLink href={item.href} className="flex items-center gap-1">
+                        {item.icon}
+                        {item.label}
+                      </BreadcrumbLink>
+                    )}
+                  </BreadcrumbItem>
+                  {index < breadcrumbs.length - 1 && (
+                    <BreadcrumbSeparator className="hidden md:block" />
                   )}
-                </BreadcrumbItem>
-                {index < breadcrumbs.length - 1 && (
-                  <BreadcrumbSeparator className="hidden md:block" />
-                )}
-              </React.Fragment>
-            ))}
-          </BreadcrumbList>
-        </Breadcrumb>
+                </React.Fragment>
+              ))}
+            </BreadcrumbList>
+          </Breadcrumb>
+        </div>
       </div>
 
       <div className="ml-auto flex items-center gap-4">
