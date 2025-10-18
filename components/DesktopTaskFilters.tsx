@@ -57,7 +57,7 @@ export function DesktopTaskFilters() {
   };
 
   return (
-    <div className="hidden md:flex justify-between gap-4 p-2 bg-background">
+    <div className="hidden md:flex justify-end gap-4 p-2 bg-background w-full">
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="outline" className="gap-2 px-4">
@@ -77,7 +77,7 @@ export function DesktopTaskFilters() {
 
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="outline" className="gap-2 px-4">
+          <Button variant="outline" className="gap-2 px-4 min-w-[130px]">
             <BsClockFill className="h-4 w-4" />
             {currentStatusLabel}
             <ChevronDownIcon className="h-4 w-4 opacity-60" />
@@ -100,7 +100,7 @@ export function DesktopTaskFilters() {
 
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="outline" className="gap-2 px-4">
+          <Button variant="outline" className="gap-2 px-4 min-w-[130px]">
             <Filter className="h-4 w-4" />
             {currentTypeLabel}
             <ChevronDownIcon className="h-4 w-4 opacity-60" />
@@ -123,7 +123,7 @@ export function DesktopTaskFilters() {
 
       <Button
         variant={filters.overdue ? 'default' : 'outline'}
-        className="gap-2 px-4"
+        className="gap-2 px-4 min-w-[130px]"
         onClick={() => setOverdueFilter(!filters.overdue)}
       >
         Atrasadas
