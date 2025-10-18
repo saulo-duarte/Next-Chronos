@@ -1,10 +1,10 @@
 import { useMemo } from 'react';
 import { BsCalendarFill, BsClockFill } from 'react-icons/bs';
 import { Button } from './ui/button';
-import { ChevronDownIcon, Plus } from 'lucide-react';
+import { ChevronDownIcon, Plus, Filter } from 'lucide-react';
 import { useTaskStore } from '@/stores/useTaskStore';
 import { useCalendarStore } from '@/stores/useCalendarStore';
-import { TaskStatus } from '@/types/Task';
+import { TaskStatus, TaskType } from '@/types/Task';
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -19,38 +19,48 @@ const statusOptions: { label: string; value: TaskStatus | 'ALL' }[] = [
   { label: 'Completo', value: 'DONE' },
 ];
 
+const typeOptions: { label: string; value: TaskType | 'ALL' }[] = [
+  { label: 'Todos os Tipos', value: 'ALL' },
+  { label: 'Projeto', value: 'PROJECT' as TaskType },
+  { label: 'Evento', value: 'EVENT' as TaskType },
+  { label: 'Estudo', value: 'STUDY' as TaskType },
+];
+
 export function DesktopTaskFilters() {
   const { calendarView: view, setCalendarView: setView } = useCalendarStore();
   const {
     filters,
     setStatusFilter,
-    clearFilters,
+    setTypeFilter,
     setOverdueFilter,
+    clearFilters,
     setSelectedTask,
     setModalOpen,
   } = useTaskStore();
 
   const currentStatusLabel = useMemo(() => {
-    if (!filters.status) return 'Todos';
-    if (Array.isArray(filters.status) && filters.status.length === 1) {
-      const val = filters.status[0];
-      if (val === 'DONE') return 'Completo';
-      if (val === 'IN_PROGRESS') return 'Em Andamento';
-      if (val === 'TODO') return 'A Fazer';
-    }
-    return Array.isArray(filters.status) ? `${filters.status.length} status` : filters.status;
+    const currentFilter = statusOptions.find((opt) => opt.value === filters.status);
+    return currentFilter ? currentFilter.label : 'Todos';
   }, [filters.status]);
 
+  const currentTypeLabel = useMemo(() => {
+    const currentFilter = typeOptions.find((opt) => opt.value === filters.type);
+    return currentFilter ? currentFilter.label : 'Todos os Tipos';
+  }, [filters.type]);
+
   const handleStatusChange = (value: TaskStatus | 'ALL') => {
-    if (value === 'ALL') clearFilters();
-    else setStatusFilter(value);
+    setStatusFilter(value === 'ALL' ? undefined : value);
+  };
+
+  const handleTypeChange = (value: TaskType | 'ALL') => {
+    setTypeFilter(value === 'ALL' ? undefined : value);
   };
 
   return (
-    <div className="hidden md:flex items-center justify-start gap-6 p-4 bg-background">
+    <div className="hidden md:flex justify-between gap-4 p-2 bg-background">
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="outline" size="sm" className="gap-2 px-4">
+          <Button variant="outline" className="gap-2 px-4">
             <BsCalendarFill className="h-4 w-4" />
             {view.charAt(0).toUpperCase() + view.slice(1)}
             <ChevronDownIcon className="h-4 w-4 opacity-60" />
@@ -67,7 +77,7 @@ export function DesktopTaskFilters() {
 
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="outline" size="sm" className="gap-2 px-4">
+          <Button variant="outline" className="gap-2 px-4">
             <BsClockFill className="h-4 w-4" />
             {currentStatusLabel}
             <ChevronDownIcon className="h-4 w-4 opacity-60" />
@@ -79,7 +89,30 @@ export function DesktopTaskFilters() {
               key={value}
               onClick={() => handleStatusChange(value)}
               className={
-                (value === 'ALL' && !filters.status) || filters.status === value ? 'bg-accent' : ''
+                value === filters.status || (value === 'ALL' && !filters.status) ? 'bg-accent' : ''
+              }
+            >
+              {label}
+            </DropdownMenuItem>
+          ))}
+        </DropdownMenuContent>
+      </DropdownMenu>
+
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="outline" className="gap-2 px-4">
+            <Filter className="h-4 w-4" />
+            {currentTypeLabel}
+            <ChevronDownIcon className="h-4 w-4 opacity-60" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent className="px-2 py-1">
+          {typeOptions.map(({ label, value }) => (
+            <DropdownMenuItem
+              key={value}
+              onClick={() => handleTypeChange(value)}
+              className={
+                value === filters.type || (value === 'ALL' && !filters.type) ? 'bg-accent' : ''
               }
             >
               {label}
@@ -90,15 +123,16 @@ export function DesktopTaskFilters() {
 
       <Button
         variant={filters.overdue ? 'default' : 'outline'}
-        size="sm"
         className="gap-2 px-4"
         onClick={() => setOverdueFilter(!filters.overdue)}
       >
         Atrasadas
       </Button>
+      <Button variant="outline" onClick={clearFilters}>
+        Limpar Filtros
+      </Button>
 
       <Button
-        size="sm"
         className="flex items-center gap-2 px-4"
         onClick={() => {
           setSelectedTask(null);

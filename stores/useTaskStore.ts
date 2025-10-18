@@ -63,19 +63,27 @@ export const useTaskStore = create<TaskUIState>((set, get) => ({
     set((state) => ({
       filters: { ...state.filters, dateRange },
     })),
-  setOverdueFilter: () => {
-    const now = new Date();
-    const isoNow = now.toISOString();
-    set((state) => ({
-      filters: {
-        ...state.filters,
-        status: ['TODO', 'IN_PROGRESS'],
-        dateRange: {
-          end: isoNow,
+  setOverdueFilter: (overdue) =>
+    set((state) => {
+      if (!overdue) {
+        const newFilters = { ...state.filters };
+        delete newFilters.status;
+        delete newFilters.dateRange;
+        delete newFilters.overdue;
+        return { filters: newFilters };
+      }
+
+      const now = new Date().toISOString();
+      return {
+        filters: {
+          ...state.filters,
+          overdue: true,
+          status: ['TODO', 'IN_PROGRESS'],
+          dateRange: { end: now },
         },
-      },
-    }));
-  },
+      };
+    }),
+
   setFilters: (newFilters) =>
     set((state) => ({
       filters: { ...state.filters, ...newFilters },
