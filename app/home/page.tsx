@@ -1,13 +1,12 @@
 'use client';
 
 import { MobileBottomNav } from '@/components/MobileBottomNav';
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import clsx from 'clsx';
 import HomeCalendar from '@/components/HomeCalendar';
 import Dashboard from '../dashboard/Dashboard';
 import { TaskEditDialog } from '@/components/task/TaskEditDialog';
 import { Home } from 'lucide-react';
-import { useUser } from '@/hooks/data/useUserQuery';
 import { AppHeader } from '@/components/AppHeader';
 import { DesktopTaskFilters } from '@/components/DesktopTaskFilters';
 
@@ -18,15 +17,6 @@ function AppLayout({
   activeTab: string;
   setActiveTab: (tab: string) => void;
 }) {
-  const { data: user } = useUser();
-
-  const greeting = useMemo(() => {
-    const hour = new Date().getHours();
-    if (hour < 12) return 'Bom dia';
-    if (hour < 18) return 'Boa tarde';
-    return 'Boa noite';
-  }, []);
-
   const breadcrumbs = [
     {
       label: 'Home',
@@ -35,22 +25,19 @@ function AppLayout({
     },
   ];
 
-  return (
-    <>
-      <AppHeader breadcrumbs={breadcrumbs} />
-      <header className="w-full sticky top-0 z-50 bg-background/80 backdrop-blur-md border-b border-border px-2 md:px-6">
-        <div className="flex items-center justify-between px-4 py-3">
-          <div className="flex flex-col">
-            <span className="text-lg font-semibold text-foreground">
-              {greeting}, {user?.username ?? 'usuário'}
-            </span>
-          </div>
+  const tabs = ['Atividades', 'Estatísticas'];
 
+  return (
+    <div className="flex flex-col h-screen">
+      <AppHeader breadcrumbs={breadcrumbs} />
+
+      <header className="w-full z-50 bg-background/80 backdrop-blur-md border-b border-border px-2 md:px-6">
+        <div className="flex items-center justify-between px-4 py-3">
           <DesktopTaskFilters />
         </div>
 
-        <nav className="flex border-t border-border">
-          {['Atividades', 'Estatísticas'].map((tab) => (
+        <nav className="md:hidden flex">
+          {tabs.map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
@@ -67,14 +54,15 @@ function AppLayout({
         </nav>
       </header>
 
-      <div className="space-y-4 mb-20 p-4">
-        {activeTab === 'Atividades' && <HomeCalendar />}
-        {activeTab === 'Estatísticas' && <Dashboard />}
+      <div className="flex-1 overflow-y-auto">
+        <div className="space-y-4 mb-20 p-4">
+          {activeTab === 'Atividades' && <HomeCalendar />}
+          <div className="md:hidden">{activeTab === 'Estatísticas' && <Dashboard />}</div>
+        </div>
       </div>
-
       <TaskEditDialog />
       <MobileBottomNav />
-    </>
+    </div>
   );
 }
 
