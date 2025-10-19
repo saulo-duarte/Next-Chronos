@@ -16,7 +16,7 @@ import Image from 'next/image';
 import { TaskEditDialog } from '@/components/task/TaskEditDialog';
 import { FaBook } from 'react-icons/fa6';
 import { AppHeader } from '@/components/AppHeader';
-import { Quiz } from './Quiz';
+import { UnifiedQuiz } from '../components/QuizList';
 
 export default function SubjectPage() {
   const params = useParams();
@@ -47,7 +47,7 @@ export default function SubjectPage() {
       <div className={`flex-1 px-2 md:px-6 ${focusMode ? 'p-0' : ''}`}>
         <Tabs defaultValue="tasks" className="flex flex-col flex-1">
           {!focusMode && (
-            <div className="sticky top-[64px] z-40 bg-background px-1 pt-8 pb-4">
+            <div className="bg-background px-1 pt-8 pb-4">
               <div className="flex items-center gap-3 mb-4">
                 <Link href="/study">
                   <Button variant="ghost" size="icon" className="text-white hover:bg-gray-800">
@@ -97,7 +97,7 @@ export default function SubjectPage() {
             )}
 
             <TabsContent value="quiz" forceMount className={focusMode ? 'block' : ''}>
-              <Quiz focusMode={focusMode} setFocusMode={setFocusMode} />
+              <UnifiedQuiz subjectId={subjectId} />
             </TabsContent>
 
             {!focusMode && (

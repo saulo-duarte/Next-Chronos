@@ -9,9 +9,11 @@ import { QuizQuestion } from '../components/QuizQuestion';
 import { Maximize2, ArrowLeft } from 'lucide-react';
 
 export function Quiz({
+  subjectId,
   focusMode = false,
   setFocusMode,
 }: {
+  subjectId: string;
   focusMode?: boolean;
   setFocusMode?: (v: boolean) => void;
 }) {
@@ -113,6 +115,7 @@ export function Quiz({
       {showResults && !quizMutation.isPending && (
         <div className="min-h-screen flex items-center justify-center bg-background">
           <QuizResults
+            subjectId={subjectId}
             questions={questions}
             userAnswers={userAnswers}
             onRestart={() => {
