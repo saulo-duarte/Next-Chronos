@@ -4,8 +4,9 @@ import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Plus, Check } from 'lucide-react';
 import { Question } from '@/hooks/data/useAIQuiz';
+import { useQuizStore } from '@/stores/useQuizStore';
 
 interface QuizQuestionProps {
   question: Question;
@@ -31,13 +32,49 @@ export function QuizQuestion({
   isLastQuestion,
 }: QuizQuestionProps) {
   const progress = (questionNumber / totalQuestions) * 100;
+  const { selectedQuestions, addSelectedQuestion, removeSelectedQuestion } = useQuizStore();
+
+  const isSelected = selectedQuestions.some(
+    (q) => q.pergunta === question.pergunta && q.resposta_correta === question.resposta_correta
+  );
+
+  const handleToggleSelect = () => {
+    if (isSelected) {
+      const index = selectedQuestions.findIndex(
+        (q) => q.pergunta === question.pergunta && q.resposta_correta === question.resposta_correta
+      );
+      if (index !== -1) removeSelectedQuestion(index);
+    } else {
+      addSelectedQuestion(question);
+    }
+  };
 
   return (
     <Card className="shadow-lg">
       <CardHeader className="space-y-4">
         <div className="flex items-center justify-between">
-          <Badge variant="secondary">{question.tema}</Badge>
-          <Badge variant="outline">{question.dificuldade}</Badge>
+          <div className="flex items-center gap-2">
+            <Badge variant="secondary">{question.tema}</Badge>
+            <Badge variant="outline">{question.dificuldade}</Badge>
+          </div>
+          <Button
+            variant={isSelected ? 'default' : 'outline'}
+            size="sm"
+            onClick={handleToggleSelect}
+            className="gap-2"
+          >
+            {isSelected ? (
+              <>
+                <Check className="w-4 h-4" />
+                Adicionado
+              </>
+            ) : (
+              <>
+                <Plus className="w-4 h-4" />
+                Adicionar
+              </>
+            )}
+          </Button>
         </div>
 
         <div className="space-y-2">

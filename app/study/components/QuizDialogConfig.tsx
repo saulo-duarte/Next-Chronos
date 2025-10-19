@@ -19,6 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { useQuizStore } from '@/stores/useQuizStore';
 
 interface QuizConfigDialogProps {
   open: boolean;
@@ -27,12 +28,16 @@ interface QuizConfigDialogProps {
 }
 
 export function QuizConfigDialog({ open, onOpenChange, onStart }: QuizConfigDialogProps) {
-  const [tema, setTema] = useState('JavaScript');
+  const [tema, setTema] = useState('');
   const [dificuldade, setDificuldade] = useState('Médio');
   const [quantidade, setQuantidade] = useState(5);
 
+  const setConfig = useQuizStore((state) => state.setConfig);
+
   const handleStart = () => {
-    onStart({ tema, dificuldade, quantidade });
+    const config = { tema, dificuldade, quantidade };
+    setConfig(config);
+    onStart(config);
   };
 
   return (
