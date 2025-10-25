@@ -7,12 +7,14 @@ export interface Question {
   pergunta: string;
   alternativas: string[];
   resposta_correta: string;
+  explicacao?: string;
 }
 
 export interface AIQuizPayload {
   tema: string;
   dificuldade: string;
   quantidade: number;
+  contexto_prova?: string;
 }
 
 const API_URL = 'ai-quiz';

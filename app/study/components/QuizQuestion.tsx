@@ -50,18 +50,14 @@ export function QuizQuestion({
   };
 
   return (
-    <Card className="shadow-lg">
+    <Card className="shadow-lg w-full border rounded-xl overflow-hidden">
       <CardHeader className="space-y-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Badge variant="secondary">{question.tema}</Badge>
-            <Badge variant="outline">{question.dificuldade}</Badge>
-          </div>
+        <div className="flex flex-wrap items-center justify-end gap-2">
           <Button
             variant={isSelected ? 'default' : 'outline'}
             size="sm"
             onClick={handleToggleSelect}
-            className="gap-2"
+            className="gap-2 text-xs sm:text-sm whitespace-nowrap"
           >
             {isSelected ? (
               <>
@@ -77,8 +73,9 @@ export function QuizQuestion({
           </Button>
         </div>
 
+        {/* Progresso */}
         <div className="space-y-2">
-          <div className="flex items-center justify-between text-sm text-muted-foreground">
+          <div className="flex items-center justify-between text-xs sm:text-sm text-muted-foreground">
             <span>
               Questão {questionNumber} de {totalQuestions}
             </span>
@@ -87,7 +84,10 @@ export function QuizQuestion({
           <Progress value={progress} className="h-2" />
         </div>
 
-        <h2 className="text-xl font-semibold leading-relaxed text-balance">{question.pergunta}</h2>
+        {/* Enunciado */}
+        <h2 className="text-base sm:text-lg font-semibold leading-relaxed break-words text-pretty">
+          {question.pergunta}
+        </h2>
       </CardHeader>
 
       <CardContent className="space-y-3">
@@ -95,7 +95,7 @@ export function QuizQuestion({
           <button
             key={index}
             onClick={() => onAnswer(alternativa)}
-            className={`w-full text-left p-4 rounded-lg border-2 transition-all hover:border-primary/50 ${
+            className={`w-full text-left p-3 rounded-lg border-2 transition-all text-sm sm:text-base hover:border-primary/50 ${
               selectedAnswer === alternativa
                 ? 'border-primary bg-primary/5'
                 : 'border-border bg-card'
@@ -103,7 +103,7 @@ export function QuizQuestion({
           >
             <div className="flex items-start gap-3">
               <div
-                className={`flex-shrink-0 w-6 h-6 rounded-full border-2 flex items-center justify-center text-sm font-medium ${
+                className={`flex-shrink-0 w-6 h-6 rounded-full border-2 flex items-center justify-center text-xs sm:text-sm font-medium ${
                   selectedAnswer === alternativa
                     ? 'border-primary bg-primary text-primary-foreground'
                     : 'border-muted-foreground/30'
@@ -111,20 +111,29 @@ export function QuizQuestion({
               >
                 {String.fromCharCode(65 + index)}
               </div>
-              <span className="flex-1 leading-relaxed">{alternativa}</span>
+              <span className="flex-1 leading-relaxed break-words text-pretty">{alternativa}</span>
             </div>
           </button>
         ))}
       </CardContent>
 
-      <CardFooter className="flex justify-between gap-2">
-        <Button variant="outline" onClick={onPrevious} disabled={!canGoBack}>
-          <ChevronLeft className="w-4 h-4 mr-2" />
+      <CardFooter className="flex justify-between gap-2 flex-wrap">
+        <Button
+          variant="outline"
+          onClick={onPrevious}
+          disabled={!canGoBack}
+          className="flex-1 min-w-[120px] text-xs sm:text-sm"
+        >
+          <ChevronLeft className="w-4 h-4" />
           Anterior
         </Button>
-        <Button onClick={onNext} disabled={!selectedAnswer}>
+        <Button
+          onClick={onNext}
+          disabled={!selectedAnswer}
+          className="flex-1 min-w-[120px] text-xs sm:text-sm"
+        >
           {isLastQuestion ? 'Ver Resultados' : 'Próxima'}
-          {!isLastQuestion && <ChevronRight className="w-4 h-4 ml-2" />}
+          {!isLastQuestion && <ChevronRight className="w-4 h-4" />}
         </Button>
       </CardFooter>
     </Card>

@@ -4,9 +4,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Question } from '@/hooks/data/useAIQuiz';
 import { useQuizStore } from '@/stores/useQuizStore';
-import { Save, RotateCcw, CheckCircle2, XCircle } from 'lucide-react';
+import { Save, RotateCcw, CheckCircle2, XCircle, Info } from 'lucide-react';
 import { useCreateQuiz } from '@/hooks/data/useQuiz';
 import { toast } from 'sonner';
+import { motion } from 'framer-motion';
 
 interface QuizResultsProps {
   questions: Question[];
@@ -28,24 +29,23 @@ export function QuizResults({ questions, userAnswers, onRestart, subjectId }: Qu
       const correctAlternative = question.alternativas[correctIndex];
       return userAnswer === correctAlternative ? acc + 1 : acc;
     }
-
     return userAnswer === correctAnswer ? acc + 1 : acc;
   }, 0);
 
   const percentage = Math.round((correctCount / questions.length) * 100);
 
   const getPerformanceColor = () => {
-    if (percentage >= 80) return 'text-green-600';
+    if (percentage >= 80) return 'text-emerald-600';
     if (percentage >= 60) return 'text-blue-600';
-    if (percentage >= 40) return 'text-yellow-600';
-    return 'text-red-600';
+    if (percentage >= 40) return 'text-amber-600';
+    return 'text-rose-600';
   };
 
   const getPerformanceMessage = () => {
     if (percentage >= 90) return 'Excelente! 🎉';
     if (percentage >= 80) return 'Muito bom! 👏';
     if (percentage >= 60) return 'Bom trabalho! 👍';
-    if (percentage >= 40) return 'Continua estudando! 📚';
+    if (percentage >= 40) return 'Continue estudando! 📚';
     return 'Tente novamente! 💪';
   };
 
@@ -73,17 +73,13 @@ export function QuizResults({ questions, userAnswers, onRestart, subjectId }: Qu
             d: q.alternativas[3],
           },
           correct_answer: q.resposta_correta,
-          explanation: '',
+          explanation: q.explicacao || '',
           order_index: idx,
         })),
       };
 
-      console.log('Payload to save quiz:', payload);
-
       await createQuiz.mutateAsync(payload);
-
       toast.success(`${selectedQuestions.length} questões salvas na sua coleção`);
-
       resetStore();
       onRestart();
     } catch {
@@ -92,126 +88,135 @@ export function QuizResults({ questions, userAnswers, onRestart, subjectId }: Qu
   };
 
   return (
-    <div className="w-full max-w-4xl mx-auto space-y-6 px-4">
-      <Card className="border-0 shadow-lg bg-gradient-to-br from-primary/5 to-primary/10">
-        <CardHeader className="text-center space-y-4">
-          <CardTitle className="text-3xl">Resultados do Quiz</CardTitle>
+    <div className="w-full space-y-8 px-4 pb-8">
+      <Card className="border-0 shadow-xl bg-gradient-to-br from-primary/10 via-background to-background">
+        <CardHeader className="text-center space-y-3">
+          <CardTitle className="text-3xl font-bold tracking-tight">Seu Desempenho</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-6">
-          <div className="text-center space-y-3">
-            <div className={`text-6xl font-bold ${getPerformanceColor()}`}>{percentage}%</div>
-            <p className="text-lg font-medium text-foreground">
-              {correctCount} de {questions.length} questões corretas
+
+        <CardContent className="space-y-8 text-center">
+          <motion.div
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ type: 'spring', duration: 0.6 }}
+          >
+            <div className={`text-7xl font-extrabold ${getPerformanceColor()}`}>{percentage}%</div>
+            <p className="text-lg font-medium text-muted-foreground">
+              {correctCount} de {questions.length} corretas
             </p>
             <p className={`text-base font-semibold ${getPerformanceColor()}`}>
               {getPerformanceMessage()}
             </p>
+          </motion.div>
+
+          <div className="w-full bg-muted/40 rounded-full h-3 overflow-hidden">
+            <motion.div
+              className={`h-full rounded-full ${
+                percentage >= 80
+                  ? 'bg-emerald-500'
+                  : percentage >= 60
+                    ? 'bg-blue-500'
+                    : percentage >= 40
+                      ? 'bg-amber-500'
+                      : 'bg-rose-500'
+              }`}
+              initial={{ width: 0 }}
+              animate={{ width: `${percentage}%` }}
+              transition={{ duration: 1 }}
+            />
           </div>
 
-          <div className="space-y-2">
-            <div className="w-full bg-secondary rounded-full h-2 overflow-hidden">
-              <div
-                className={`h-full transition-all duration-500 ${
-                  percentage >= 80
-                    ? 'bg-green-500'
-                    : percentage >= 60
-                      ? 'bg-blue-500'
-                      : percentage >= 40
-                        ? 'bg-yellow-500'
-                        : 'bg-red-500'
-                }`}
-                style={{ width: `${percentage}%` }}
-              />
+          <div className="grid grid-cols-3 gap-4 pt-2">
+            <div className="p-4 rounded-lg bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200/60 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300">
+              <p className="text-3xl font-bold">{correctCount}</p>
+              <p className="text-sm font-medium">Corretas</p>
             </div>
-          </div>
-
-          <div className="grid grid-cols-3 gap-3 pt-2">
-            <div className="text-center p-3 bg-background rounded-lg border">
-              <p className="text-2xl font-bold text-green-600">{correctCount}</p>
-              <p className="text-xs text-muted-foreground">Corretas</p>
+            <div className="p-4 rounded-lg bg-rose-50 dark:bg-rose-950/20 border border-rose-200/60 dark:border-rose-800 text-rose-700 dark:text-rose-300">
+              <p className="text-3xl font-bold">{questions.length - correctCount}</p>
+              <p className="text-sm font-medium">Erradas</p>
             </div>
-            <div className="text-center p-3 bg-background rounded-lg border">
-              <p className="text-2xl font-bold text-red-600">{questions.length - correctCount}</p>
-              <p className="text-xs text-muted-foreground">Incorretas</p>
-            </div>
-            <div className="text-center p-3 bg-background rounded-lg border">
-              <p className="text-2xl font-bold text-primary">{questions.length}</p>
-              <p className="text-xs text-muted-foreground">Total</p>
+            <div className="p-4 rounded-lg bg-muted/50 border border-border text-foreground">
+              <p className="text-3xl font-bold">{questions.length}</p>
+              <p className="text-sm font-medium">Total</p>
             </div>
           </div>
         </CardContent>
       </Card>
 
-      <Card className="border-0 shadow-lg">
+      <Card className="border-0 shadow-lg bg-background/80 backdrop-blur-sm">
         <CardHeader>
-          <CardTitle className="text-xl">Revisão das Questões</CardTitle>
+          <CardTitle className="text-xl font-semibold">Revisão das Questões</CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="space-y-3 max-h-96 overflow-y-auto pr-2">
-            {questions.map((question, index) => {
-              const userAnswer = userAnswers[index];
-              const correctAnswer = question.resposta_correta;
+        <CardContent className="overflow-y-auto space-y-4 pr-2">
+          {questions.map((question, index) => {
+            const userAnswer = userAnswers[index];
+            const correctAnswer = question.resposta_correta;
 
-              let isCorrect = false;
-              if (correctAnswer.match(/^[A-D]$/i)) {
-                const correctIndex = correctAnswer.toUpperCase().charCodeAt(0) - 65;
-                const correctAlternative = question.alternativas[correctIndex];
-                isCorrect = userAnswer === correctAlternative;
-              } else {
-                isCorrect = userAnswer === correctAnswer;
-              }
+            let isCorrect = false;
+            let correctAlternative = correctAnswer;
+            if (correctAnswer.match(/^[A-D]$/i)) {
+              const correctIndex = correctAnswer.toUpperCase().charCodeAt(0) - 65;
+              correctAlternative = question.alternativas[correctIndex];
+              isCorrect = userAnswer === correctAlternative;
+            } else {
+              isCorrect = userAnswer === correctAnswer;
+            }
 
-              return (
-                <div
-                  key={index}
-                  className={`p-4 rounded-lg border-2 transition-all ${
-                    isCorrect
-                      ? 'bg-green-50 border-green-200 dark:bg-green-950/20 dark:border-green-900'
-                      : 'bg-red-50 border-red-200 dark:bg-red-950/20 dark:border-red-900'
-                  }`}
-                >
-                  <div className="flex gap-3">
-                    <div className="flex-shrink-0 pt-0.5">
-                      {isCorrect ? (
-                        <CheckCircle2 className="w-5 h-5 text-green-600" />
-                      ) : (
-                        <XCircle className="w-5 h-5 text-red-600" />
-                      )}
+            return (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.05 }}
+                className={`p-5 rounded-xl border-2 ${
+                  isCorrect
+                    ? 'border-emerald-200 bg-emerald-50 dark:border-emerald-900 dark:bg-emerald-950/30'
+                    : 'border-rose-200 bg-rose-50 dark:border-rose-900 dark:bg-rose-950/30'
+                }`}
+              >
+                <div className="flex items-start gap-3">
+                  {isCorrect ? (
+                    <CheckCircle2 className="w-6 h-6 mt-1 text-emerald-600" />
+                  ) : (
+                    <XCircle className="w-6 h-6 mt-1 text-rose-600" />
+                  )}
+
+                  <div className="flex-1 space-y-2">
+                    <p className="font-medium text-foreground text-sm leading-relaxed">
+                      {index + 1}. {question.pergunta}
+                    </p>
+
+                    <div
+                      className={`text-sm px-3 py-2 rounded-lg font-medium ${
+                        isCorrect
+                          ? 'bg-emerald-100/60 dark:bg-emerald-900/40 text-emerald-900 dark:text-emerald-100'
+                          : 'bg-rose-100/60 dark:bg-rose-900/40 text-rose-900 dark:text-rose-100'
+                      }`}
+                    >
+                      Sua resposta: {userAnswer}
                     </div>
-                    <div className="flex-1 space-y-2">
-                      <p className="font-semibold text-sm text-foreground">
-                        {index + 1}. {question.pergunta}
-                      </p>
 
-                      <div
-                        className={`text-sm p-2 rounded ${
-                          isCorrect
-                            ? 'bg-green-100/50 dark:bg-green-900/30 text-green-900 dark:text-green-100'
-                            : 'bg-red-100/50 dark:bg-red-900/30 text-red-900 dark:text-red-100'
-                        }`}
-                      >
-                        <span className="font-medium">Sua resposta: </span>
-                        {userAnswer}
+                    {!isCorrect && (
+                      <div className="text-sm px-3 py-2 rounded-lg bg-emerald-100/60 dark:bg-emerald-900/40 text-emerald-900 dark:text-emerald-100">
+                        Resposta correta: {correctAnswer}) {correctAlternative}
                       </div>
+                    )}
 
-                      {!isCorrect && (
-                        <div className="text-sm p-2 rounded bg-green-100/50 dark:bg-green-900/30 text-green-900 dark:text-green-100">
-                          <span className="font-medium">Resposta correta: </span>
-                          {correctAnswer.match(/^[A-D]$/i)
-                            ? `${correctAnswer}) ${question.alternativas[correctAnswer.toUpperCase().charCodeAt(0) - 65]}`
-                            : correctAnswer}
-                        </div>
-                      )}
-                    </div>
+                    {question.explicacao && (
+                      <div className="flex items-start gap-2 mt-2 bg-muted/50 p-3 rounded-lg text-sm text-muted-foreground border border-border/40">
+                        <Info className="w-4 h-4 mt-0.5 text-primary" />
+                        <p>{question.explicacao}</p>
+                      </div>
+                    )}
                   </div>
                 </div>
-              );
-            })}
-          </div>
+              </motion.div>
+            );
+          })}
         </CardContent>
       </Card>
 
-      <div className="flex gap-3 justify-center pt-4">
+      <div className="flex flex-wrap gap-3 justify-center pt-4">
         <Button variant="outline" onClick={onRestart} className="gap-2" size="lg">
           <RotateCcw className="w-4 h-4" />
           Novo Quiz
