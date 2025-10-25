@@ -23,6 +23,7 @@ import type { TaskStatus, TaskType, TaskPriority } from '@/types/Task';
 import { toast } from 'sonner';
 import { getPriorityBadge, getStatusBadge, getTaskTypeIcon } from '@/components/utils';
 import { useTaskStore } from '@/stores/useTaskStore';
+import { Checkbox } from '@/components/ui/checkbox';
 
 interface TaskFormData {
   name: string;
@@ -34,6 +35,7 @@ interface TaskFormData {
   startTime: string;
   dueDate: string;
   dueTime: string;
+  removeDueDate: boolean; // ⇨ nova flag para "Sem Data"
 }
 
 const generateTimeOptions = () => {
@@ -49,18 +51,21 @@ const generateTimeOptions = () => {
 
 const TIME_OPTIONS = generateTimeOptions();
 
+// Componente para selecionar data e hora
 const DateTimeSelector = ({
   label,
   date,
   time,
   onDateChange,
   onTimeChange,
+  disabled,
 }: {
   label: string;
   date: string;
   time: string;
   onDateChange: (date: string) => void;
   onTimeChange: (time: string) => void;
+  disabled?: boolean; // ⇨ controla visibilidade
 }) => {
   const [dateOpen, setDateOpen] = useState(false);
 
@@ -72,6 +77,8 @@ const DateTimeSelector = ({
       return '';
     }
   };
+
+  if (disabled) return null;
 
   return (
     <div className="space-y-2">
@@ -96,9 +103,7 @@ const DateTimeSelector = ({
             sideOffset={5}
             style={{ zIndex: 9999 }}
             onOpenAutoFocus={(e) => e.preventDefault()}
-            onInteractOutside={(e) => {
-              e.preventDefault();
-            }}
+            onInteractOutside={(e) => e.preventDefault()}
           >
             <Calendar
               mode="single"
@@ -131,6 +136,7 @@ const DateTimeSelector = ({
   );
 };
 
+// Componente para status e prioridade
 const StatusPrioritySelector = ({
   status,
   priority,
@@ -201,6 +207,7 @@ const StatusPrioritySelector = ({
   );
 };
 
+// Componente principal do formulário
 interface TaskEditFormContentProps {
   closeComponent: React.ReactNode;
   onClose: () => void;
@@ -214,10 +221,7 @@ export function TaskEditFormContent({ closeComponent, onClose }: TaskEditFormCon
   const parseDateTime = useCallback((isoString: string) => {
     if (!isoString) return { date: '', time: '' };
     const date = new Date(isoString);
-    return {
-      date: date.toISOString(),
-      time: format(date, 'HH:mm'),
-    };
+    return { date: date.toISOString(), time: format(date, 'HH:mm') };
   }, []);
 
   const combineDateTime = useCallback((date: string, time: string) => {
@@ -229,9 +233,7 @@ export function TaskEditFormContent({ closeComponent, onClose }: TaskEditFormCon
     dateObj.setHours(hours, minutes, 0, 0);
 
     const tzOffset = dateObj.getTimezoneOffset() * 60000;
-    const localISO = new Date(dateObj.getTime() - tzOffset).toISOString().slice(0, 19);
-
-    return localISO;
+    return new Date(dateObj.getTime() - tzOffset).toISOString().slice(0, 19);
   }, []);
 
   const getInitialFormData = useCallback((): TaskFormData => {
@@ -246,6 +248,7 @@ export function TaskEditFormContent({ closeComponent, onClose }: TaskEditFormCon
         startTime: '',
         dueDate: '',
         dueTime: '',
+        removeDueDate: false,
       };
     }
 
@@ -262,6 +265,7 @@ export function TaskEditFormContent({ closeComponent, onClose }: TaskEditFormCon
       startTime: startDateTime.time,
       dueDate: dueDateTime.date,
       dueTime: dueDateTime.time,
+      removeDueDate: !selectedTask.startDate && !selectedTask.dueDate,
     };
   }, [selectedTask, parseDateTime]);
 
@@ -286,8 +290,9 @@ export function TaskEditFormContent({ closeComponent, onClose }: TaskEditFormCon
       description: formData.description.trim() || undefined,
       status: formData.status,
       priority: formData.priority,
-      startDate: startDateTime || undefined,
-      dueDate: dueDateTime || undefined,
+      startDate: formData.removeDueDate ? undefined : startDateTime || undefined,
+      dueDate: formData.removeDueDate ? undefined : dueDateTime || undefined,
+      removeDueDate: formData.removeDueDate,
     });
 
     toast.success('Tarefa atualizada com sucesso! ✅');
@@ -314,16 +319,7 @@ export function TaskEditFormContent({ closeComponent, onClose }: TaskEditFormCon
         : 'Evento';
   }, [formData.type]);
 
-  if (!selectedTask) {
-    return (
-      <div className="p-4 space-y-4 text-white">
-        <div className="h-6 w-3/4 bg-slate-800 rounded animate-pulse" />
-        <div className="h-4 w-1/2 bg-slate-800 rounded animate-pulse" />
-        <div className="h-4 w-full bg-slate-800 rounded animate-pulse" />
-        <div className="h-4 w-3/4 bg-slate-800 rounded animate-pulse" />
-      </div>
-    );
-  }
+  if (!selectedTask) return <div className="p-4 text-white">Carregando...</div>;
 
   return (
     <>
@@ -372,12 +368,24 @@ export function TaskEditFormContent({ closeComponent, onClose }: TaskEditFormCon
           onPriorityChange={(priority) => updateFormData({ priority })}
         />
 
+        {/* ⇨ Checkbox para “Sem Data” */}
+        <div className="flex items-center gap-2">
+          <Checkbox
+            id="remove-date"
+            checked={formData.removeDueDate}
+            onCheckedChange={(checked) => updateFormData({ removeDueDate: checked === true })}
+          />
+          <Label htmlFor="remove-date">Sem Data</Label>
+        </div>
+
+        {/* ⇨ Data/hora só aparece se removeDueDate for false */}
         <DateTimeSelector
           label="Data de início"
           date={formData.startDate}
           time={formData.startTime}
           onDateChange={(date) => updateFormData({ startDate: date })}
           onTimeChange={(time) => updateFormData({ startTime: time })}
+          disabled={formData.removeDueDate}
         />
 
         <DateTimeSelector
@@ -386,6 +394,7 @@ export function TaskEditFormContent({ closeComponent, onClose }: TaskEditFormCon
           time={formData.dueTime}
           onDateChange={(date) => updateFormData({ dueDate: date })}
           onTimeChange={(time) => updateFormData({ dueTime: time })}
+          disabled={formData.removeDueDate}
         />
       </div>
 

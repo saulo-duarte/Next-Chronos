@@ -39,13 +39,14 @@ export interface TaskPayload {
 
 export interface UpdateTaskPayload {
   id: string;
-  name?: string;
-  description?: string;
+  name?: string | null;
+  description?: string | null;
   status: TaskStatus;
-  priority?: TaskPriority;
-  dueDate?: string;
-  startDate?: string;
-  doneAt?: string;
+  priority?: TaskPriority | null;
+  startDate?: string | null;
+  dueDate?: string | null;
+  removeDueDate?: boolean;
+  doneAt?: string | null;
 }
 
 export interface TaskFilters {

@@ -60,7 +60,7 @@ export function EventDialog({ taskType = 'EVENT', projectId, topicId }: EventDia
       setEndDate(end);
       setStartTime(start ? formatTimeForInput(start) : `${DefaultStartHour}:00`);
       setEndTime(end ? formatTimeForInput(end) : `${DefaultEndHour}:00`);
-      setAllDay(task.dueDate == null);
+      setAllDay(!task.startDate && !task.dueDate);
     } else {
       resetForm();
     }
@@ -90,7 +90,7 @@ export function EventDialog({ taskType = 'EVENT', projectId, topicId }: EventDia
   };
 
   const handleSave = () => {
-    if (isEvent && (!startDate || !endDate)) {
+    if (isEvent && !allDay && (!startDate || !endDate)) {
       setError('Por favor, selecione as datas de início e término.');
       return;
     }
@@ -115,6 +115,7 @@ export function EventDialog({ taskType = 'EVENT', projectId, topicId }: EventDia
       description,
       startDate: allDay ? undefined : start ? toLocalISOString(start) : undefined,
       dueDate: allDay ? undefined : end ? toLocalISOString(end) : undefined,
+      removeDueDate: allDay,
       status,
       priority,
     };
@@ -124,7 +125,6 @@ export function EventDialog({ taskType = 'EVENT', projectId, topicId }: EventDia
         ...payloadCommon,
         id: task.id,
       };
-
       updateTask.mutate(payload, { onSuccess: handleClose });
     } else {
       const payload: TaskPayload = {
@@ -133,7 +133,6 @@ export function EventDialog({ taskType = 'EVENT', projectId, topicId }: EventDia
         projectId: isProject ? projectId : undefined,
         studyTopicId: isStudy ? (effectiveTopicId ?? undefined) : undefined,
       };
-
       createTask.mutate(payload, { onSuccess: handleClose });
     }
   };
@@ -239,11 +238,11 @@ export function EventDialog({ taskType = 'EVENT', projectId, topicId }: EventDia
                 <SelectValue placeholder="Selecione status" />
               </SelectTrigger>
               <SelectContent>
-                {['TODO', 'IN_PROGRESS', 'DONE'].map((status) => (
-                  <SelectItem key={status} value={status}>
-                    {status === 'TODO' && 'A Fazer'}
-                    {status === 'IN_PROGRESS' && 'Em Andamento'}
-                    {status === 'DONE' && 'Concluído'}
+                {['TODO', 'IN_PROGRESS', 'DONE'].map((s) => (
+                  <SelectItem key={s} value={s}>
+                    {s === 'TODO' && 'A Fazer'}
+                    {s === 'IN_PROGRESS' && 'Em Andamento'}
+                    {s === 'DONE' && 'Concluído'}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -261,6 +260,7 @@ export function EventDialog({ taskType = 'EVENT', projectId, topicId }: EventDia
             </div>
           )}
 
+          {/* ⇨ Mostra o picker de datas apenas se allDay for false */}
           {!allDay && (
             <div className="grid grid-cols-2 gap-4">
               <div className="flex flex-col gap-2">
