@@ -127,7 +127,7 @@ export function Quiz({
       )}
 
       {!showResults && questions.length > 0 && !quizMutation.isPending && (
-        <div className="min-h-screen flex items-center justify-center py-8 px-4">
+        <div className="min-h-screen flex items-center justify-center py-8">
           <div className="w-full max-w-full">
             <QuizQuestion
               question={questions[currentQuestionIndex]}

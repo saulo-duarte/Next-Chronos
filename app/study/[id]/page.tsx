@@ -3,7 +3,6 @@
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
-import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { FloatingNewStudyTopicButton } from '../components/FloatingNewStudyTopic';
@@ -21,7 +20,7 @@ import { UnifiedQuiz } from '../components/QuizList';
 export default function SubjectPage() {
   const params = useParams();
   const subjectId = params.id as string;
-  const [focusMode, setFocusMode] = useState(false);
+  const focusMode = false;
 
   const {
     data: topics,
@@ -47,8 +46,8 @@ export default function SubjectPage() {
       <div className={`flex-1 px-2 md:px-6 ${focusMode ? 'p-0' : ''}`}>
         <Tabs defaultValue="tasks" className="flex flex-col flex-1">
           {!focusMode && (
-            <div className="bg-background px-1 pt-8 pb-4">
-              <div className="flex items-center gap-3 mb-4">
+            <div className="bg-background px-1 mt-2 pb-4">
+              <div className="flex items-center gap-2 mb-4">
                 <Link href="/study">
                   <Button variant="ghost" size="icon" className="text-white hover:bg-gray-800">
                     <ArrowLeft className="w-5 h-5" />
@@ -65,9 +64,9 @@ export default function SubjectPage() {
             </div>
           )}
 
-          <div className={`flex-1 overflow-y-auto ${focusMode ? 'p-0' : 'px-4 pt-4 mb-20'}`}>
-            {!focusMode && (
-              <TabsContent value="tasks">
+          <div className={`flex-1 ${focusMode ? 'p-0' : 'px-4 pt-4 mb-20'}`}>
+            <TabsContent value="tasks">
+              <div className="overflow-y-auto flex-1">
                 {isTopicsLoading && <div className="text-slate-400">Carregando tópicos...</div>}
                 {isTopicsError && <div className="text-red-400">Erro ao carregar os tópicos.</div>}
 
@@ -93,26 +92,22 @@ export default function SubjectPage() {
                     ))}
                   </div>
                 )}
-              </TabsContent>
-            )}
-
-            <TabsContent value="quiz" forceMount className={focusMode ? 'block' : ''}>
-              <UnifiedQuiz subjectId={subjectId} />
+              </div>
             </TabsContent>
 
-            {!focusMode && (
-              <>
-                <TabsContent value="flashcards">
-                  <div className="text-center text-slate-400 py-8">
-                    Flash Cards em desenvolvimento
-                  </div>
-                </TabsContent>
+            <TabsContent value="quiz">
+              <div className="overflow-y-auto flex-1">
+                <UnifiedQuiz subjectId={subjectId} />
+              </div>
+            </TabsContent>
 
-                <TabsContent value="files">
-                  <div className="text-center text-slate-400 py-8">Arquivos em desenvolvimento</div>
-                </TabsContent>
-              </>
-            )}
+            <TabsContent value="flashcards">
+              <div className="text-center text-slate-400 py-8">Flash Cards em desenvolvimento</div>
+            </TabsContent>
+
+            <TabsContent value="files">
+              <div className="text-center text-slate-400 py-8">Arquivos em desenvolvimento</div>
+            </TabsContent>
           </div>
         </Tabs>
 
