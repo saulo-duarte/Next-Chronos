@@ -19,6 +19,7 @@ import { WeekSelectorDesktop } from './WeekSelectorDesktop';
 import { PiSuitcase } from 'react-icons/pi';
 import { MdOutlineSpaceDashboard } from 'react-icons/md';
 import { HiOutlineBookOpen } from 'react-icons/hi';
+import { GoGoal } from 'react-icons/go';
 
 const navItems = [
   {
@@ -41,6 +42,11 @@ const navItems = [
     title: 'Estudos',
     url: '/study',
     icon: HiOutlineBookOpen,
+  },
+  {
+    title: 'Metas',
+    url: '/goals',
+    icon: GoGoal,
   },
 ];
 

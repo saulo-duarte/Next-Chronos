@@ -18,7 +18,6 @@ export function useTasks() {
 
 export function useFilteredTasks(filters?: TaskFilters) {
   const { data: allTasks, ...queryResult } = useTasks();
-  console.log('All tasks:', allTasks, 'Filters:', filters);
 
   const filteredTasks = useMemo(() => {
     if (!allTasks) return [];
@@ -92,6 +91,7 @@ export function useUpdateTask() {
 
   return useMutation({
     mutationFn: async ({ id, ...data }: { id: string } & UpdateTaskPayload) => {
+      console.log('Updating task with data:', data);
       const res = await api.put(`${API_URL}/${id}`, data);
       return res.data;
     },
